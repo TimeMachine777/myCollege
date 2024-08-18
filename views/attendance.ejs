@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/partials/userCommon.css">
+    <link rel="stylesheet" href="/css/attendance.css">
+</head>
+
+<body>
+    <!-- User navbar -->
+    <%- include('partials/navbarUser.ejs') %>
+
+    <br><br>
+
+    <!-- Inside the <body> tag, add this section -->
+    <div class="columns">
+        <!-- Side navigation menu -->
+        <aside class="menu column is-2">
+            <ul class="menu-list">
+                <li><a href="/user/dashboard">Dashboard</a></li><br>
+                <li><a href="/user/courses">Courses</a></li><br>
+                <li><a class="is-active" href="/user/attendance">Attendance</a></li><br>
+                <li><a href="/user/marks">Marks</a></li><br>
+                <li><a href="/user/events">Events</a></li>
+            </ul>
+            <hr>
+        </aside>
+        <!-- Page main body -->
+        <aside class="column">
+            <h1 class="title has-text-centered">This is attendance page!</h1>
+            <div class="section">
+                <div class="container">
+                    <div class="columns">
+                        <div class="column is-one-third">
+                            <div class="content has-text-centered "><h1 class="has-text-weight-semibold">All courses</h1></div>
+                            <% for(let course of courses) { %>
+                                <div class="card" course-id="<%= course.cid %>">
+                                    <div class="card-content">
+                                        <div class="content">
+                                            <strong>Course Name:</strong>
+                                            <span class="course-name"><%= course.course_name %> </span><br>
+                                            <strong>Course Code:</strong>
+                                            <span class="course-id"><%= course.cid %> </span><br>
+                                            <strong>Prof Name:</strong>
+                                            <span class="course-professor"><%= course.professor %> </span><br>
+                                            <strong>Credits:</strong>
+                                            <span class="course-credits"><%= course.credits %> </span><br>
+                                            <strong>Present:</strong>
+                                            <span class="course-attendance"><%= course.present %>/<%= course.total_classes %>
+                                                <% if(course.total_classes>0) { %>
+                                                    (
+                                                    <% let percent=(course.present*100)/course.total_classes,percentClass; %>
+                                                    <% percent=Math.round(percent*100)/100; %>
+                                                    <% if(percent>85) percentClass='is-color-green';
+                                                        else if(percent>=75) percentClass='is-color-yellow';
+                                                        else percentClass='is-color-red';
+                                                    %>
+                                                    <span class="<%= percentClass %>"><%= percent %>%</span>
+                                                    )
+                                                <% } %>
+                                            </span><br>
+                                        </div>
+                                        <div class="card-footer">
+                                            <button class="button card-footer-item is-primary attendance-details-btn" course-id="<%= course.cid %>">View/ Modify/ Add details</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                        <div class="column">
+                            <div class="content has-text-centered "><h1 class="has-text-weight-semibold">Attendance details</h1></div>
+                            <div class="card" id="attendance-details-card">
+                                <div class="card-content is-size-5">
+                                    <p class="title has-text-centered is-size-3">
+                                        Course: <span id="attendance-details-course-id"><!-- data will be inserted by JS dynamically --></span>
+                                    </p>
+                                    <p class="subtitle has-text-centered is-size-4" id="attendance-details-course-name">
+                                        <!-- data will be inserted by JS dynamically -->
+                                    </p>
+                                    <p>
+                                        <strong>Present:</strong> <span id="attendance-details-count"><!-- data will be inserted by JS dynamically --></span>
+                                    </p>
+
+                                    <!-- add attendance form -->
+                                    <div class="section hide" id="add-attendance-section">
+                                        <div class="container">
+                                            <div class="columns">
+                                                <div class="column is-10 is-offset-1">
+                                                    <div class="card" id="add-attendance-card">
+                                                        <div class="card-content hide">
+                                                            <form>
+                                                                <div class="field is-horizontal">
+                                                                    <div class="field-body">
+                                                                        <div class="field">
+                                                                            <% 
+                                                                                const now = new Date();
+                                                                                const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+                                                                                const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to milliseconds
+                                                                                const maxDateTime = new Date(endOfDay-timezoneOffset).toISOString().slice(0, 19);
+                                                                            %>
+                                                                            <label class="label">Date <abbr title="required" class="required">*</abbr></label>
+                                                                            <div class="control">
+                                                                                <input class="input" type="datetime-local" name="course_date" max="<%= maxDateTime %>" step="1" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="field">
+                                                                            <label class="label">Status <abbr title="required" class="required">*</abbr></label>
+                                                                            <div class="select is-normal">
+                                                                                <select name="status" required>
+                                                                                    <option value="P" selected>P</option>
+                                                                                    <option value="A">A</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="field is-grouped is-grouped-centered">
+                                                                    <div class="control">
+                                                                        <button class="button is-primary" id="add-attendance-submit-btn" type="submit">Submit</button>
+                                                                        <button class="button is-warning" id="add-attendance-cancel-btn" type="button">Cancel</button>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                        <div class="card-footer">
+                                                            <button class="button is-primary card-footer-item" id="add-attendance-btn" type="button">Add attendance</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <table class="table is-fullwidth is-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="attendance-table-body" class="is-size-6">
+                                            <!-- Rows will be dynamically inserted here by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- loading screen overlay -->
+    <div class="loading-overlay hide">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Common Ending code -->
+    <%- include('partials/commonEnd.ejs') %>
+
+    <script src="/js/partials/userCommon.js"></script>
+    <script src="/js/attendance.js"></script>
+</body>
+
+</html>

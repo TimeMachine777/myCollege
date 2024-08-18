@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/partials/userCommon.css">
+    <link rel="stylesheet" href="/css/profile.css">
+</head>
+
+<body>
+    <!-- User navbar -->
+    <%- include('partials/navbarUser.ejs') %>
+
+    <br><br>
+
+    <!-- Inside the <body> tag, add this section -->
+    <div class="columns">
+        <!-- Side navigation menu -->
+        <aside class="menu column is-2">
+            <ul class="menu-list">
+                <li><a href="/user/dashboard">Dashboard</a></li><br>
+                <li><a href="/user/courses">Courses</a></li><br>
+                <li><a href="/user/attendance">Attendance</a></li><br>
+                <li><a href="/user/marks">Marks</a></li><br>
+                <li><a href="/user/events">Events</a></li>
+            </ul>
+            <hr>
+        </aside>
+        <aside class="column">
+            <!-- User detail card -->
+            <div class="section">
+                <div class="container">
+                    <div class="columns">
+                        <div class="column is-half is-offset-one-quarter">
+                            <div class="card" id="user-details-card">
+                                <div class="card-content is-size-5">
+                                    <h1 class="title is-3 has-text-centered">User Details</h1>
+                                    <p><strong>Username: </strong> <%= details.username %></p>
+                                    <p><strong>Name: </strong> <%= details.name %></p>
+                                    <p><strong>Roll Number: </strong> <%= details.roll_no %></p>
+                                    <p><strong>College: </strong> <%= details.college %></p>
+                                    <p><strong>Current semester: </strong> <%= details.current_sem %></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Password Form -->
+            <div class="section">
+                <div class="container">
+                    <div class="columns">
+                        <div class="column is-half is-offset-one-quarter">
+                            <div class="card" id="change-password-card">
+                                <div class="card-content hide">
+                                    <form>
+                                        <h1 class="title is-3 has-text-warning">Change Password Form</h1>
+                                        <div class="field">
+                                            <label class="label">Current password <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input input-small" type="password" name="curr_password" minlength="8" maxlength="20" required>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label">New password <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input input-small" type="password" name="new_password" minlength="8" maxlength="20" title="Must contain at least 1 of each of the following: lowercase letter, uppercase letter, special symbol(!@#$%^&*()) and number. Min-length=8 and max-length=20." required>
+                                            </div>
+                                            <p class="help" id="password-strength-text"></p>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label">Repeat new password <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input input-small" type="password" name="repeat_new_password" minlength="8" maxlength="20" required>
+                                            </div>
+                                        </div>
+                                        <div class="field is-grouped is-grouped-centered">
+                                            <div class="control">
+                                                <button class="button is-primary" id="change-password-submit-btn" type="submit">Submit</button>
+                                                <button class="button is-warning" id="change-password-cancel-btn" type="button">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="button is-primary card-footer-item" id="change-password-btn" type="submit">Change Password</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change user details Form -->
+            <div class="section">
+                <div class="container">
+                    <div class="columns">
+                        <div class="column is-half is-offset-one-quarter">
+                            <div class="card" id="change-user-details-card">
+                                <div class="card-content hide">
+                                    <form>
+                                        <h1 class="title is-3 has-text-warning">Change Other Details Form</h1>
+                                        <div class="field">
+                                            <label class="label" for="name">Name <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input" type="text" name="name" value="<%= details.name %>" maxlength="100" required>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label" for="roll_no">Roll No <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input" type="text" name="roll_no" value="<%= details.roll_no %>" maxlength="20" required>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label" for="college">College</label>
+                                            <div class="control">
+                                                <input class="input" type="text" maxlength="50" value="<%= details.college %>" name="college">
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label" for="current_sem">Current Semester <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input" type="number" name="current_sem" value="<%= details.current_sem %>" min="1" required>
+                                            </div>
+                                        </div>
+                                        <div class="field is-grouped is-grouped-centered">
+                                            <div class="control">
+                                                <button class="button is-primary" id="change-user-details-submit-btn" type="submit">Submit</button>
+                                                <button class="button is-warning" id="change-user-details-cancel-btn" type="button">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="button is-primary card-footer-item" id="change-user-details-btn" type="submit">Change Other Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- loading screen overlay -->
+    <div class="loading-overlay hide">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Common Ending code -->
+    <%- include('partials/commonEnd.ejs') %>
+
+    <script src="/js/partials/userCommon.js"></script>
+    <script src="/js/profile.js"></script>
+</body>
+
+</html>    

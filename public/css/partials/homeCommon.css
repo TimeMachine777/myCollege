@@ -1,0 +1,83 @@
+/* theme adjustments in inputs ------------- */
+
+/* Dark mode specific styling */
+@media (prefers-color-scheme: dark) {
+    input[type="password"]::-ms-reveal, /* For Internet Explorer */
+    input[type="password"]::-webkit-clear-button,
+    input[type="password"]::-webkit-calendar-picker-indicator,
+    input[type="datetime-local"]::-webkit-clear-button,
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+    input[type="password"]::-ms-reveal { /* "Show Password" button in Chrome */
+      filter: invert(100%); /* Invert color to make it visible on dark background */
+    }
+}
+  
+/* Light mode specific styling (no change, just ensuring visibility) */
+@media (prefers-color-scheme: light) {
+    input[type="password"]::-ms-reveal, /* For Internet Explorer */
+    input[type="password"]::-webkit-clear-button,
+    input[type="password"]::-webkit-calendar-picker-indicator,
+    input[type="datetime-local"]::-webkit-clear-button,
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+    input[type="password"]::-ms-reveal { /* "Show Password" button in Chrome */
+        filter: none; /* No inversion needed for light backgrounds */
+    }
+}
+    
+/* -------------------------- */
+
+/* Notification box css code--------------- */
+
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 300px; /* Set the maximum width for the notifications */
+    z-index: 999; /* Ensure it appears on top of other elements */
+}
+
+.notification {
+    margin-bottom: 0px; /* Add some space between notifications */
+    width: auto; /* Adjust width to fit content */
+}
+
+.notification .delete {
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+
+/* Required field css code ----------- */
+
+.required{
+    color: red;
+    text-decoration: none;
+}
+
+/* Footer css code ----------------*/
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure the body takes up the full height of the viewport */
+    margin: 0;
+}
+
+.footer {
+    padding: 12px 24px; /* Adjust the padding to make it smaller */
+    margin-top: auto; /* Pushes the footer to the bottom */
+    background-color: #29292c; /* Grey background */
+    color: #f8f9fa; /* Light text color */
+    width: 100%; /* Ensure the footer takes full width */
+}
+
+.footer .footer-link {
+    color: #48c774; /* Light link color for dark mode */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .footer {
+        padding: 8px 16px; /* Smaller padding on smaller screens */
+    }
+}

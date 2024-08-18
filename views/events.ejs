@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/partials/userCommon.css">
+    <link rel="stylesheet" href="/css/events.css">
+</head>
+
+<body>
+    <!-- User navbar -->
+    <%- include('partials/navbarUser.ejs') %>
+
+    <br><br>
+
+    <!-- Inside the <body> tag, add this section -->
+    <div class="columns">
+        <!-- Side navigation menu -->
+        <aside class="menu column is-2">
+            <ul class="menu-list">
+                <li><a href="/user/dashboard">Dashboard</a></li><br>
+                <li><a href="/user/courses">Courses</a></li><br>
+                <li><a href="/user/attendance">Attendance</a></li><br>
+                <li><a href="/user/marks">Marks</a></li><br>
+                <li><a class="is-active" href="/user/events">Events</a></li>
+            </ul>
+            <hr>
+        </aside>
+        <aside class="column">
+            <h1 class="title has-text-centered">This is the Events Page!</h1>
+            
+            <!-- add event form -->
+            <div class="section" id="add-event-section">
+                <div class="container">
+                    <div class="columns">
+                        <div class="column is-6 is-offset-3">
+                            <div class="card add-event-card">
+                                <div class="card-content hide">
+                                    <form>
+                                        <div class="field">
+                                            <label class="label">Name <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input" type="text" name="event_name" maxlength="200" required>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label">Type <abbr title="required" class="required">*</abbr></label>
+                                            <div class="select is-normal">
+                                                <select name="type" required>
+                                                    <option value="exam">Exam</option>
+                                                    <option value="assignment">Assignment</option>
+                                                    <option value="other" selected>Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label">Description</label>
+                                            <div class="control">
+                                                <textarea class="input" name="description"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="field add-event-issue-date">
+                                            <label class="label">Issue Date <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input add-event-issue-date" type="datetime-local" step="1" name="issue_date" required>
+                                            </div>
+                                        </div>
+                                        <div class="field add-event-deadline hide">
+                                            <label class="label">Deadline <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input add-event-deadline" type="datetime-local" step="1" name="deadline" required>
+                                            </div>
+                                        </div>
+                                        <div class="field add-event-completion-date hide">
+                                            <label class="label">Completion Date</label>
+                                            <div class="control">
+                                                <input class="input add-event-completion-date" type="datetime-local" step="1" name="completion_date">
+                                            </div>
+                                        </div>
+                                        <div class="field add-event-sem">
+                                            <label class="label">Semester <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input add-event-sem" type="number" name="sem" min="1" required>
+                                            </div>
+                                        </div>
+                                        <div class="field add-event-course-id hide">
+                                            <label class="label">Course ID</label>
+                                            <div class="select is-normal">
+                                                <select name="cid" class="add-event-course-id">
+                                                    <option value="" selected>None</option>
+                                                    <!-- Other options will be dynamically inserted by JS -->
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="field is-grouped is-grouped-centered">
+                                            <div class="control">
+                                                <button class="button is-primary" id="add-event-submit-btn" type="submit">Submit</button>
+                                                <button class="button is-warning" id="add-event-cancel-btn" type="button">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="button is-primary card-footer-item" id="event-add-btn" type="button">Add an event</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main body -->
+            <div class="section">
+                <div class="container">
+                    <div class="columns">
+                        <div class="column is-one-third">
+                            <!-- Upcoming Events -->
+                            <div class="content has-text-centered "><h1 class="has-text-weight-semibold">Upcoming Events!</h1></div>
+                            <% if(upcomingEvents.length==0) { %>
+                                <div class="content has-text-centered"><p class="subtitle has-text-info">Nothing to show here!</p></div>
+                            <% } %>
+                            <% for(let event of upcomingEvents) { %>
+                                <div class="card upcomingEvents" event-id="<%= event.eid %>">
+                                    <div class="card-content">
+                                        <div class="content">
+                                            <strong>Event Name:</strong>
+                                            <span class="event-name"><%= event.event_name %> </span><br>
+                                            <strong>Event ID:</strong>
+                                            <span class="event-id"><%= event.eid %> </span><br>
+                                            <strong>Issue Date:</strong>
+                                            <span class="event-issue-date"><%= new Date(event.issue_date).toLocaleString() %> </span><br>
+                                            <strong>Deadline:</strong>
+                                            <span class="event-deadline"><%= new Date(event.deadline).toLocaleString() %> </span><br>
+                                            <strong>Time Rem:</strong>
+                                            <span class="event-time-rem">
+                                                <% 
+                                                    const st=new Date(),end=new Date(event.deadline);
+                                                    const diff=end-st; //in milliseconds
+                                                    let seconds=diff/1000;
+                                                    const days=Math.floor(seconds/(24*60*60));
+                                                    seconds=seconds%(24*60*60);
+                                                    const hours=Math.floor(seconds/(60*60));
+                                                    seconds=seconds%(60*60);
+                                                    const minutes=Math.floor(seconds/60);
+                                                    seconds=Math.floor(seconds%60);
+                                                    const timeRem=`${days} days, ${hours} hours, ${minutes} min, ${seconds} sec`;
+                                                %>
+                                                <%= timeRem %>
+                                            </span><br>
+                                        </div>
+                                        <div class="card-footer">
+                                            <button class="button card-footer-item is-primary event-details-btn" event-id="<%= event.eid %>">More details/ Edit</button>
+                                            <button class="button card-footer-item is-danger event-delete-btn" event-id="<%= event.eid %>">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                            <hr class="event-list-divider">
+                            <!-- Late Events -->
+                            <div class="content has-text-centered "><h1 class="has-text-weight-semibold">Late Events!</h1></div>
+                            <% if(lateEvents.length==0) { %>
+                                <div class="content has-text-centered"><p class="subtitle has-text-info">Nothing to show here!</p></div>
+                            <% } %>
+                            <% for(let event of lateEvents) { %>
+                                <div class="card lateEvents" event-id="<%= event.eid %>">
+                                    <div class="card-content">
+                                        <div class="content">
+                                            <strong>Event Name:</strong>
+                                            <span class="event-name"><%= event.event_name %> </span><br>
+                                            <strong>Event ID:</strong>
+                                            <span class="event-id"><%= event.eid %> </span><br>
+                                            <strong>Issue Date:</strong>
+                                            <span class="event-issue-date"><%= new Date(event.issue_date).toLocaleString() %> </span><br>
+                                            <strong>Deadline:</strong>
+                                            <span class="event-deadline"><%= new Date(event.deadline).toLocaleString() %> </span><br>
+                                            <strong>Time elapsed since deadline:</strong>
+                                            <span class="event-time-rem">
+                                                <% 
+                                                    const end=new Date(),st=new Date(event.deadline);
+                                                    const diff=end-st; //in milliseconds
+                                                    let seconds=diff/1000;
+                                                    const days=Math.floor(seconds/(24*60*60));
+                                                    seconds=seconds%(24*60*60);
+                                                    const hours=Math.floor(seconds/(60*60));
+                                                    seconds=seconds%(60*60);
+                                                    const minutes=Math.floor(seconds/60);
+                                                    seconds=Math.floor(seconds%60);
+                                                    const timeRem=`${days} days, ${hours} hours, ${minutes} min, ${seconds} sec`;
+                                                %>
+                                                <%= timeRem %>
+                                            </span><br>
+                                        </div>
+                                        <div class="card-footer">
+                                            <button class="button card-footer-item is-primary event-details-btn" event-id="<%= event.eid %>">More details/ Edit</button>
+                                            <button class="button card-footer-item is-danger event-delete-btn" event-id="<%= event.eid %>">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                            <hr class="event-list-divider">
+                            <!-- Late Events -->
+                            <div class="content has-text-centered "><h1 class="has-text-weight-semibold">Completed Events!</h1></div>
+                            <% if(completedEvents.length==0) { %>
+                                <div class="content has-text-centered"><p class="subtitle has-text-info">Nothing to show here!</p></div>
+                            <% } %>
+                            <% for(let event of completedEvents) { %>
+                                <div class="card completedEvents" event-id="<%= event.eid %>">
+                                    <div class="card-content">
+                                        <div class="content">
+                                            <strong>Event Name:</strong>
+                                            <span class="event-name"><%= event.event_name %> </span><br>
+                                            <strong>Event ID:</strong>
+                                            <span class="event-id"><%= event.eid %> </span><br>
+                                            <strong>Issue Date:</strong>
+                                            <span class="event-issue-date"><%= new Date(event.issue_date).toLocaleString() %> </span><br>
+                                            <strong>Deadline:</strong>
+                                            <span class="event-deadline"><%= new Date(event.deadline).toLocaleString() %> </span><br>
+                                            <strong>Completed on:</strong>
+                                            <span class="event-completion-date"><%= new Date(event.completion_date).toLocaleString() %> </span><br>
+                                            
+                                        </div>
+                                        <div class="card-footer">
+                                            <button class="button card-footer-item is-primary event-details-btn" event-id="<%= event.eid %>">More details/ Edit</button>
+                                            <button class="button card-footer-item is-danger event-delete-btn" event-id="<%= event.eid %>">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                        <div class="column">
+                            <div class="content has-text-centered "><h1 class="has-text-weight-semibold">Event details</h1></div>
+                            <div class="card" id="event-details-card">
+                                <div class="card-content is-size-5">
+                                    <div id="event-details-content">
+                                        <p class="title has-text-centered is-size-3">
+                                            Event ID: <span id="event-details-event-id"><!-- data will be inserted by JS dynamically --></span>
+                                        </p>
+                                        <p class="subtitle has-text-centered is-size-4" id="event-details-event-name">
+                                            <!-- data will be inserted by JS dynamically -->
+                                        </p>
+                                        <p>
+                                            <strong>Type:</strong> <span id="event-details-type"><!-- data will be inserted by JS dynamically --></span>
+                                        </p>
+                                        <p>
+                                            <strong>Course ID:</strong> <span id="event-details-course-id"><!-- data will be inserted by JS dynamically --></span>
+                                        </p>
+                                        <p>
+                                            <strong>Issue Date:</strong> <span id="event-details-issue-date"><!-- data will be inserted by JS dynamically --></span>
+                                        </p>
+                                        <p>
+                                            <strong>Deadline:</strong> <span id="event-details-deadline"><!-- data will be inserted by JS dynamically --></span>
+                                        </p>
+                                        <p>
+                                            <strong>Completion Date:</strong> <span id="event-details-completion-date"><!-- data will be inserted by JS dynamically --></span>
+                                        </p>
+                                        <p>
+                                            <strong>Status:</strong> <span id="event-details-status"><!-- data will be inserted by JS dynamically --></span>
+                                        </p>
+                                        <p>
+                                            <strong>Description:</strong> <span id="event-details-desc"><!-- data will be inserted by JS dynamically --></span>
+                                        </p>
+                                    </div>
+
+                                    <!-- event edit form -->
+                                    <div class="section hide" id="edit-event-section">
+                                        <div class="container">
+                                            <!-- <div class="columns">
+                                                <div class="column is-10 is-offset-1"> -->
+                                                    <div class="card edit-event-card">
+                                                        <div class="card-content hide">
+                                                            <form>
+                                                                <div class="field">
+                                                                    <label class="label">Name <abbr title="required" class="required">*</abbr></label>
+                                                                    <div class="control">
+                                                                        <input class="input" type="text" name="event_name" maxlength="200" required>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="field">
+                                                                    <label class="label">Type <abbr title="required" class="required">*</abbr></label>
+                                                                    <div class="select is-normal">
+                                                                        <select name="type" required>
+                                                                            <option value="exam">Exam</option>
+                                                                            <option value="assignment">Assignment</option>
+                                                                            <option value="other">Other</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="field">
+                                                                    <label class="label">Description</label>
+                                                                    <div class="control">
+                                                                        <textarea class="input" name="description"></textarea>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="field edit-event-issue-date">
+                                                                    <label class="label">Issue Date <abbr title="required" class="required">*</abbr></label>
+                                                                    <div class="control">
+                                                                        <input class="input edit-event-issue-date" type="datetime-local" step="1" name="issue_date" required>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="field edit-event-deadline">
+                                                                    <label class="label">Deadline <abbr title="required" class="required">*</abbr></label>
+                                                                    <div class="control">
+                                                                        <input class="input edit-event-deadline" type="datetime-local" step="1" name="deadline" required>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="field edit-event-completion-date">
+                                                                    <label class="label">Completion Date</label>
+                                                                    <div class="control">
+                                                                        <input class="input edit-event-completion-date" type="datetime-local" step="1" name="completion_date">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="field edit-event-sem">
+                                                                    <label class="label">Semester <abbr title="required" class="required">*</abbr></label>
+                                                                    <div class="control">
+                                                                        <input class="input edit-event-sem" type="number" name="sem" min="1" required>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="field edit-event-course-id">
+                                                                    <label class="label">Course ID</label>
+                                                                    <div class="select is-normal">
+                                                                        <select name="cid" class="edit-event-course-id">
+                                                                            <option value="" selected>None</option>
+                                                                            <!-- Other options will be dynamically inserted by JS -->
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="field is-grouped is-grouped-centered">
+                                                                    <div class="control">
+                                                                        <button class="button is-primary" id="edit-event-submit-btn" type="submit">Submit</button>
+                                                                        <button class="button is-warning" id="edit-event-cancel-btn" type="button">Cancel</button>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                        <div class="card-footer">
+                                                            <button class="button card-footer-item is-primary" id="event-edit-form-btn">Edit Event</button>
+                                                        </div>
+                                                    </div>
+                                                <!-- </div>
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- loading screen overlay -->
+    <div class="loading-overlay hide">
+        <div class="spinner"></div>
+    </div>    
+
+    <!-- Common Ending code -->
+    <%- include('partials/commonEnd.ejs') %>
+
+    <script src="/js/partials/userCommon.js"></script>
+    <script src="/js/events.js"></script>
+</body>
+
+</html>

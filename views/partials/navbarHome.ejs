@@ -1,0 +1,48 @@
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            <h1 class="title">MyCollege</h1>
+        </a>
+
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-start">
+            <a class="navbar-item <%= (page=='Home')?'is-active':null %>" href="/">
+                Home
+            </a>
+            <a class="navbar-item <%= (page=='About Us')?'is-active':null %>" href="/aboutUs">
+                About Us
+            </a>
+            <% if(isAuthenticated) { %>
+            <a class="navbar-item has-text-warning" href="/user/dashboard">
+                Dashboard
+            </a>
+            <% } %>
+        </div>
+
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    <% if(!isAuthenticated) { %>
+                        <a href="/auth/register" class="button is-primary">
+                            Register
+                        </a>
+                        <a href="/auth/login" class="button is-light">
+                            Login
+                        </a>
+                    <% } else { %>
+                        <form action="">
+                            <button class="button is-light" type="submit" formmethod="post" formaction="/auth/logout">Logout</button>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/partials/userCommon.css">
+    <link rel="stylesheet" href="/css/courses.css">
+</head>
+
+<body>
+    <!-- User navbar -->
+    <%- include('partials/navbarUser.ejs') %>
+
+    <br><br>
+
+    <!-- Inside the <body> tag, add this section -->
+    <div class="columns">
+        <!-- Side navigation menu -->
+        <aside class="menu column is-2">
+            <ul class="menu-list">
+                <li><a href="/user/dashboard">Dashboard</a></li><br>
+                <li><a class="is-active" href="/user/courses">Courses</a></li><br>
+                <li><a href="/user/attendance">Attendance</a></li><br>
+                <li><a href="/user/marks">Marks</a></li><br>
+                <li><a href="/user/events">Events</a></li>
+            </ul>
+            <hr>
+        </aside>
+        <!-- Page main body -->
+        <aside class="column">
+            <h1 class="title has-text-centered">This is courses page!</h1>
+            <!-- new course form -->
+            <div class="section">
+                <div class="container">
+                    <div class="columns">
+                        <div class="column is-half is-offset-one-quarter">
+                            <div class="card" id="add-course-card">
+                                <div class="card-content hide">
+                                    <form>
+                                        <div class="field">
+                                            <label class="label">Course Name <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input" type="text" name="course_name" maxlength="50" required>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label">Course Code <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input" type="text" name="cid" maxlength="10" required>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label">Prof Name</label>
+                                            <div class="control">
+                                                <input class="input" type="text" maxlength="100" name="professor">
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label">Dept</label>
+                                            <div class="control">
+                                                <input class="input" type="text" maxlength="20" name="dept">
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label">Credits <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input" type="number" name="credits" min="1" max="100" step="0.5" required>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label">Semester <abbr title="required" class="required">*</abbr></label>
+                                            <div class="control">
+                                                <input class="input" type="number" name="sem" min="1" required>
+                                            </div>
+                                        </div>
+                                        <div class="field is-grouped is-grouped-centered">
+                                            <div class="control">
+                                                <button class="button is-primary" id="course-add-submit-btn" type="submit">Submit</button>
+                                                <button class="button is-warning" id="course-add-cancel-btn" type="button">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="button is-primary card-footer-item" id="course-add-btn" type="submit">Add a course</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- all courses section -->
+            <div class="section">
+                <div class="container">
+                    <div class="columns is-multiline is-desktop">
+                        <% for(let course of courses) { %>
+                            <div class="column is-one-third-widescreen is-half-desktop">
+                                <div class="card course-card" course-id="<%= course.cid %>">
+                                    <div class="card-content">
+                                        <div class="content">
+                                            <strong>Course Name:</strong>
+                                            <%= course.course_name %> <br>
+                                            <strong>Course Code:</strong>
+                                            <%= course.cid %> <br>
+                                            <strong>Prof Name:</strong>
+                                            <%= course.professor %> <br>
+                                            <strong>Dept:</strong>
+                                            <%= course.dept %> <br>
+                                            <strong>Credits:</strong>
+                                            <%= course.credits %> <br>
+                                        </div>
+                                        <form course-id="<%= course.cid %>" class="hide">
+                                            <div class="field">
+                                                <label class="label">Course Name <abbr title="required" class="required">*</abbr></label>
+                                                <div class="control">
+                                                    <input class="input" type="text" name="course_name" value="<%= course.course_name %>" maxlength="50" required>
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <label class="label">Course Code <abbr title="required" class="required">*</abbr></label>
+                                                <div class="control">
+                                                    <input class="input" type="text" name="cid" value="<%= course.cid %>" maxlength="10" required>
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <label class="label">Prof Name</label>
+                                                <div class="control">
+                                                    <input class="input" type="text" name="professor" value="<%= course.professor %>" maxlength="100">
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <label class="label">Dept</label>
+                                                <div class="control">
+                                                    <input class="input" type="text" name="dept" value="<%= course.dept %>" maxlength="20">
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <label class="label">Credits <abbr title="required" class="required">*</abbr></label>
+                                                <div class="control">
+                                                    <input class="input" type="number" name="credits" value="<%= course.credits %>" min="1" max="100" step="0.5" required>
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <label class="label">Semester <abbr title="required" class="required">*</abbr></label>
+                                                <div class="control">
+                                                    <input class="input" type="number" name="sem" value="<%= currSem %>" min="1" required>
+                                                </div>
+                                            </div>
+                                            <div class="field is-grouped is-grouped-centered">
+                                                <div class="control">
+                                                    <button class="button is-primary course-edit-submit-btn" type="submit">Submit</button>
+                                                    <button class="button is-warning course-edit-cancel-btn" type="button" course-id="<%= course.cid %>">Cancel</button>
+                                                    <button class="button is-danger course-delete-btn" type="button" course-id="<%= course.cid %>">Delete</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <div class="card-footer" course-id="<%= course.cid %>">
+                                            <button class="button is-dark card-footer-item course-edit-btn" type="button" course-id="<%= course.cid %>">Edit/Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+    </div>
+
+    <!-- loading screen overlay -->
+    <div class="loading-overlay hide">
+        <div class="spinner"></div>
+    </div>
+
+   <!-- Common Ending code -->
+   <%- include('partials/commonEnd.ejs') %>
+    
+    <script src="/js/partials/userCommon.js"></script>
+    <script src="/js/courses.js"></script>
+</body>
+
+</html>

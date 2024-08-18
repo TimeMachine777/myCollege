@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOME</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="/css/partials/homeCommon.css">
+</head>
+
+<body>
+    <!-- Home-Navbar -->
+    <%- include('partials/navbarHome.ejs') %>
+
+    <!-- <section class="section">
+        <div class="container">
+            <h1 class="title">This is the HOME</h1>
+        </div>
+    </section> -->
+
+    <section class="hero is-medium is-bold" style="background-color: #26355D;">
+        <div class="hero-body has-text-centered">
+          <div class="container">
+            <h1 class="title is-1">
+              myCollege
+            </h1>
+            <h2 class="subtitle is-4">
+              The Only Website You Need for College Life Management
+            </h2>
+            <!-- <h3 class="subtitle is-4">
+              Student-Centric | High-End Security | Multiple Auth Methods
+            </h3> -->
+          </div>
+        </div>
+      </section>
+      
+      <section class="section">
+        <div class="container">
+          <h2 class="title is-3 has-text-centered">Key Features</h2>
+          <div class="columns is-centered">
+            <div class="column is-one-quarter has-text-centered">
+              <div class="box">
+                <figure class="image is-128x128 mx-auto">
+                  <img src="/assets/images/courses.jpeg" alt="Courses">
+                </figure>
+                <p class="title is-4">Courses</p>
+                <p class="subtitle is-6">Manage your courses effortlessly.</p>
+              </div>
+            </div>
+            <div class="column is-one-quarter has-text-centered">
+              <div class="box">
+                <figure class="image is-128x128 mx-auto">
+                  <img src="/assets/images/attendance.jpeg" alt="Attendance">
+                </figure>
+                <p class="title is-4">Attendance</p>
+                <p class="subtitle is-6">Track and edit your attendance.</p>
+              </div>
+            </div>
+            <div class="column is-one-quarter has-text-centered">
+              <div class="box">
+                <figure class="image is-128x128 mx-auto">
+                  <img src="/assets/images/marks.jpeg" alt="Marks">
+                </figure>
+                <p class="title is-4">Marks</p>
+                <p class="subtitle is-6">Monitor and update your marks.</p>
+              </div>
+            </div>
+            <div class="column is-one-quarter has-text-centered">
+              <div class="box">
+                <figure class="image is-128x128 mx-auto">
+                  <img src="/assets/images/events.jpeg" alt="Events">
+                </figure>
+                <p class="title is-4">Events</p>
+                <p class="subtitle is-6">Stay on top of all your events.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <section class="section">
+        <div class="container">
+          <h2 class="title is-3 has-text-centered">More Features</h2>
+          <div class="columns is-multiline is-centered">
+            <div class="column is-one-third">
+              <div class="box">
+                <p class="title is-5">Consistent System</p>
+                <p class="subtitle is-6">High reliability across all features.</p>
+              </div>
+            </div>
+            <div class="column is-one-third">
+              <div class="box">
+                <p class="title is-5">High-End Security</p>
+                <p class="subtitle is-6">Advanced security for your data.</p>
+              </div>
+            </div>
+            <div class="column is-one-third">
+              <div class="box">
+                <p class="title is-5">Multiple Authentication Methods</p>
+                <p class="subtitle is-6">Choose from various secure login options.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      
+      
+
+    <!-- Common Ending code -->
+    <%- include('partials/commonEnd.ejs') %>
+
+    <script src="/js/partials/homeCommon.js"></script>
+</body>
+
+</html>

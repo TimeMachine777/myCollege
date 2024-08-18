@@ -1,0 +1,38 @@
+
+/* attendance specific code----------- */
+.icon {
+    cursor: pointer;
+}
+
+.table-icon-edit:hover {
+    color: #3273dc;
+}
+
+.table-icon-delete:hover {
+    color: red;
+}
+
+.table-icon-tick:hover {
+    color: lightgreen;
+}
+
+.table-icon-cancelEdit:hover {
+    color: yellow;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-around;
+}
+
+.is-color-red{
+    color: red;
+}
+
+.is-color-yellow {
+    color: yellow;
+}
+
+.is-color-green {
+    color: lightgreen;
+}

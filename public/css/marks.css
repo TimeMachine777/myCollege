@@ -1,0 +1,23 @@
+
+/* Marks specific CSS code -------------------*/
+
+.icon{
+    cursor: pointer;
+}
+
+.edit-marks:hover {
+    color: #3273dc;
+}
+
+.confirmEdit-marks:hover {
+    color: lightgreen;
+}
+
+.cancelEdit-marks:hover {
+    color: yellow;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-around;
+}

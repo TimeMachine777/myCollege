@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marks</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/partials/userCommon.css">
+    <link rel="stylesheet" href="/css/marks.css">
+</head>
+
+<body>
+    <!-- User navbar -->
+    <%- include('partials/navbarUser.ejs') %>
+
+    <br><br>
+
+    <!-- Inside the <body> tag, add this section -->
+    <div class="columns">
+        <!-- Side navigation menu -->
+        <aside class="menu column is-2">
+            <ul class="menu-list">
+                <li><a href="/user/dashboard">Dashboard</a></li><br>
+                <li><a href="/user/courses">Courses</a></li><br>
+                <li><a href="/user/attendance">Attendance</a></li><br>
+                <li><a class="is-active" href="/user/marks">Marks</a></li><br>
+                <li><a href="/user/events">Events</a></li>
+            </ul>
+            <hr>
+        </aside>
+        <aside class="column">
+            <h1 class="title has-text-centered">This is the Marks Page!</h1>
+            <!-- marks table -->
+            <table class="table is-fullwidth is-striped">
+                <thead>
+                    <tr>
+                        <!-- <th><abbr title="Course ID">ID</abbr></th> -->
+                        <th><abbr title="Course Name (Course ID)">Course Name (ID)</abbr></th>
+                        <th><abbr title="Quiz 1">Q1</abbr></th>
+                        <th><abbr title="Mid-Sem">MS</abbr></th>
+                        <th><abbr title="Quiz 2">Q2</abbr></th>
+                        <th><abbr title="End-Sem">ES</abbr></th>
+                        <th><abbr title="Internals">Int</abbr></th>
+                        <th><abbr title="Total Marks">Total</abbr></th>
+                        <!-- <th><abbr title="Edit button">Btn</abbr></th> -->
+                    </tr>
+                </thead>
+                <tbody id="marks-table-body" class="is-size-6">
+                    <% for(let course of marks) { %>
+                        <tr>
+                            <td><%= course.course_name %> (<%= course.cid %>)</td>
+                            <td>
+                                <div class="field">
+                                    <div class="control">
+                                        <input type="number" name="quiz1" value="<%= course.quiz1 %>" class="input quiz1 <%= course.cid %>" min="0" max="10" step="0.5" disabled>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field">
+                                    <div class="control">
+                                        <input type="number" name="mid_sem" value="<%= course.mid_sem %>" class="input mid_sem <%= course.cid %>" min="0" max="25" step="0.5" disabled>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field">
+                                    <div class="control">
+                                        <input type="number" name="quiz2" value="<%= course.quiz2 %>" class="input quiz2 <%= course.cid %>" min="0" max="10" step="0.5" disabled>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field">
+                                    <div class="control">
+                                        <input type="number" name="end_sem" value="<%= course.end_sem %>" class="input end_sem <%= course.cid %>" min="0" max="50" step="0.5" disabled>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field">
+                                    <div class="control">
+                                        <input type="number" name="internal" value="<%= course.internal %>" class="input internal <%= course.cid %>" min="0" max="5" step="0.5" disabled>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><%= course.total_marks %></td>
+                            <!-- edit button -->
+                            <td>
+                                <div class="button-container">
+                                    <span class="icon is-large edit-marks" course-id="<%= course.cid %>">
+                                        <i class="fas fa-pen"></i>
+                                    </span>
+                                    <span class="hide icon is-large confirmEdit-marks" course-id="<%= course.cid %>">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                    <span class="hide icon is-large cancelEdit-marks" course-id="<%= course.cid %>">
+                                        <i class="fas fa-times"></i>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </aside>
+    </div>
+
+    <!-- loading screen overlay -->
+    <div class="loading-overlay hide">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Common Ending code -->
+    <%- include('partials/commonEnd.ejs') %>
+
+    <script src="/js/partials/userCommon.js"></script>
+    <script src="/js/marks.js"></script>
+</body>
+
+</html>

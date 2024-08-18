@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="/css/partials/homeCommon.css">
+</head>
+
+<body>
+    <!-- Home-Navbar -->
+    <%- include('partials/navbarHome.ejs') %>
+
+    <section class="hero is-primary is-bold">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">About Us</h1>
+                <h2 class="subtitle">
+                    Welcome to MyCollege! Discover how this platform is designed to simplify and enhance your college experience.
+                </h2>
+            </div>
+        </div>
+    </section>
+    
+    <section class="section">
+        <div class="container">
+            <h2 class="title">Our Purpose</h2>
+            <p>
+                MyCollege was built with a vision to create a student-centric tool that helps manage various aspects of college life with ease. We understand the challenges students face in keeping track of attendance, marks, courses, events, and deadlines. This platform is designed to streamline these tasks, making it easier to stay organized and focused on what truly matters—your education.
+            </p>
+            <p>
+                With features that include efficient management of courses, real-time attendance tracking, detailed marks monitoring, event scheduling, and important deadlines, MyCollege ensures that everything you need is accessible and manageable in one place. Our dashboard displays crucial information upfront, helping you stay on top of your academic responsibilities.
+            </p>
+        </div>
+    </section>
+    
+    <section class="section">
+        <div class="container">
+            <h2 class="title">About the Developer</h2>
+            <p>
+                <!-- Content about yourself goes here -->
+            </p>
+        </div>
+    </section>
+    
+
+    <!-- Common Ending code -->
+    <%- include('partials/commonEnd.ejs') %>
+    
+    <script src="/js/partials/homeCommon.js"></script>
+</body>
+
+</html>

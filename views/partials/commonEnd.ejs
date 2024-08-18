@@ -1,0 +1,28 @@
+<!-- Notifications section -->
+<% if (locals.errorMessage) { %>
+    <div class="notification-container">
+        <div class="notification is-danger is-light">
+            <button class="delete"></button>
+            <%= errorMessage %>
+        </div>
+    </div>
+<% } %>
+
+<!-- Footer code -->
+<footer class="footer has-background-grey-darker">
+    <div class="content has-text-centered">
+        <p>
+            &copy; 2024 myCollege. All rights reserved.
+        </p>
+        <p>
+            Made with ❤️ by 
+            <a href="https://github.com/TimeMachine777" target="_blank" class="footer-link">
+                TimeMachine777
+            </a>
+        </p>
+        <!-- <p>
+            <a href="mailto:gaurangdev777@gmail.com" class="footer-link">Contact Me</a> | 
+            <a href="#" class="footer-link">Privacy Policy</a>
+        </p> -->
+    </div>
+</footer>

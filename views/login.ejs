@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/partials/homeCommon.css">
+</head>
+<body>
+    <!-- Auth-Navbar -->
+    <%- include('partials/navbarAuth.ejs') %>
+
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Login</h1>
+            <form action="" method="post">
+                <div class="field">
+                    <label class="label" for="username">Username(Email) :</label>
+                    <div class="control">
+                        <input class="input" type="email" id="username" name="username" maxlength="100" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="password">Password:</label>
+                    <div class="control">
+                        <input class="input" type="password" id="password" name="password" minlength="8" maxlength="20" required>
+                    </div>
+                </div>
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button class="button is-link" type="submit" formaction="/auth/login/local">Login with local</button>
+                    </div>
+                    <div class="control">
+                        <button class="button is-link" type="submit" formaction="/auth/login/jwt">Login with jwt</button>
+                    </div>
+                </div>
+            </form>
+            <br>
+            <a class="button is-light" href="/auth/google">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fab fa-google"></i>
+                    </span>
+                    <span>Sign in with Google</span>
+                </span>
+            </a>
+        </div>
+    </section>
+    
+    <!-- Common Ending code -->
+    <%- include('partials/commonEnd.ejs') %>
+
+    <script src="/js/partials/homeCommon.js"></script>
+</body>
+</html>

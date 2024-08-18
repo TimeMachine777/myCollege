@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/partials/userCommon.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+    <!-- User navbar -->
+    <%- include('partials/navbarUser.ejs') %>
+
+    <br><br>
+
+    <!-- Inside the <body> tag, add this section -->
+    <div class="columns">
+        <!-- Side navigation menu -->
+        <aside class="menu column is-2">
+            <ul class="menu-list">
+                <li><a class="is-active" href="/user/dashboard">Dashboard</a></li><br>
+                <li><a href="/user/courses">Courses</a></li><br>
+                <li><a href="/user/attendance">Attendance</a></li><br>
+                <li><a href="/user/marks">Marks</a></li><br>
+                <li><a href="/user/events">Events</a></li>
+            </ul>
+            <hr>
+        </aside>
+        <aside class="column">
+            <!-- <h1 class="title is-2 has-text-info">Welcome User!</h1><br> -->
+            <div class="columns">
+                <div class="column is-4">
+                    <h3 class="title is-3">Attendance Overview</h3>
+                    <div class="box">
+                        <div class="columns is-multiline">
+                            <% attendance.forEach(function(course) { 
+                                let percentage=course.total_classes> 0 ? (course.present / course.total_classes) * 100 : -1;
+                                let colorClass = percentage < 75 ? 'crimson' : percentage < 85 ? 'rebeccapurple': 'green' ; if(course.total_classes===0) colorClass='grey' %>
+                                <div class="column is-12">
+                                    <div class="level">
+                                        <div class="level-left">
+                                            <div class="circular-progress"
+                                                data-inner-circle-color="<%= colorClass === 'crimson' ? 'lightgrey' : 'white' %>"
+                                                data-percentage="<%= percentage %>"
+                                                data-progress-color="<%= colorClass %>" data-bg-color="black">
+                                                <div class="inner-circle"></div>
+                                                <p class="percentage">0%</p>
+                                            </div>
+                                        </div>
+                                        <div class="level-right">
+                                            <div class="level-item has-text-left">
+                                                <div>
+                                                    <p class="has-text-weight-semibold is-size-5">
+                                                        <%= course.course_name %>
+                                                    </p>
+                                                    <p class="is-size-6 has-text-grey">
+                                                        <%= course.cid %>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side (Marks and Events) Placeholder -->
+                <div class="column is-8">
+                    <div class="columns">
+                        <div class="column is-half">
+                            <div class="content has-text-centered "><h1 class="has-text-weight-semibold has-text-primary">Upcoming Events!</h1></div>
+                            <% if(upcomingEvents.length==0) { %>
+                                <div class="content has-text-centered"><p class="subtitle has-text-info">Nothing to show here!</p></div>
+                            <% } %>
+                            <% for(let event of upcomingEvents) { %>
+                                <div class="card upcomingEvents" event-id="<%= event.eid %>">
+                                    <div class="card-content">
+                                        <div class="content">
+                                            <strong>Event Name:</strong>
+                                            <span class="event-name"><%= event.event_name %> </span><br>
+                                            <strong>Event ID:</strong>
+                                            <span class="event-id"><%= event.eid %> </span><br>
+                                            <strong>Issue Date:</strong>
+                                            <span class="event-issue-date"><%= new Date(event.issue_date).toLocaleString() %> </span><br>
+                                            <strong>Deadline:</strong>
+                                            <span class="event-deadline"><%= new Date(event.deadline).toLocaleString() %> </span><br>
+                                            <strong>Time Rem:</strong>
+                                            <span class="event-time-rem">
+                                                <%
+                                                    const st=new Date(),end=new Date(event.deadline);
+                                                    const diff=end-st; //in milliseconds
+                                                    let seconds=diff/1000;
+                                                    const days=Math.floor(seconds/(24*60*60));
+                                                    seconds=seconds%(24*60*60);
+                                                    const hours=Math.floor(seconds/(60*60));
+                                                    seconds=seconds%(60*60);
+                                                    const minutes=Math.floor(seconds/60);
+                                                    seconds=Math.floor(seconds%60);
+                                                    const timeRem=`${days} days, ${hours} hours, ${minutes} min, ${seconds} sec`;
+                                                %>
+                                                <%= timeRem %>
+                                            </span><br>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                        <div class="column">
+                            <div class="content has-text-centered "><h1 class="has-text-weight-semibold has-text-danger">Late Events!</h1></div>
+                            <% if(lateEvents.length==0) { %>
+                                <div class="content has-text-centered"><p class="subtitle has-text-info">Nothing to show here!</p></div>
+                            <% } %>
+                            <% for(let event of lateEvents) { %>
+                                <div class="card lateEvents" event-id="<%= event.eid %>">
+                                    <div class="card-content">
+                                        <div class="content">
+                                            <strong>Event Name:</strong>
+                                            <span class="event-name"><%= event.event_name %> </span><br>
+                                            <strong>Event ID:</strong>
+                                            <span class="event-id"><%= event.eid %> </span><br>
+                                            <strong>Issue Date:</strong>
+                                            <span class="event-issue-date"><%= new Date(event.issue_date).toLocaleString() %> </span><br>
+                                            <strong>Deadline:</strong>
+                                            <span class="event-deadline"><%= new Date(event.deadline).toLocaleString() %> </span><br>
+                                            <strong>Time elapsed since deadline:</strong>
+                                            <span class="event-time-rem">
+                                                <% 
+                                                    const end=new Date(),st=new Date(event.deadline);
+                                                    const diff=end-st; //in milliseconds
+                                                    let seconds=diff/1000;
+                                                    const days=Math.floor(seconds/(24*60*60));
+                                                    seconds=seconds%(24*60*60);
+                                                    const hours=Math.floor(seconds/(60*60));
+                                                    seconds=seconds%(60*60);
+                                                    const minutes=Math.floor(seconds/60);
+                                                    seconds=Math.floor(seconds%60);
+                                                    const timeRem=`${days} days, ${hours} hours, ${minutes} min, ${seconds} sec`;
+                                                    %>
+                                                <%= timeRem %>
+                                                </span><br>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- loading screen overlay -->
+    <div class="loading-overlay hide">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Common Ending code -->
+    <%- include('partials/commonEnd.ejs') %>
+
+    <script src="/js/partials/userCommon.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+
+</html>
