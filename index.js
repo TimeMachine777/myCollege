@@ -6,7 +6,7 @@ import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 
-import { isAuthorizedForCompleteProfile, isAuthenticated, isAlreadyLoggedIn } from "./controllers/authController.js";
+import { isAuthorizedForCompleteProfile, isAuthenticated, isAlreadyLoggedIn, isAuthorizedForRegisterOTP } from "./controllers/authController.js";
 import authRoutes from "./routes/authRoutes.js";
 import rootRoutes from "./routes/rootRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -76,6 +76,7 @@ app.use(async (req,res,next) => {
 
 //others
 app.use('/auth/register/completeProfile',isAuthorizedForCompleteProfile);
+app.use('/auth/register/verifyEmail',isAuthorizedForRegisterOTP);
 app.use(['/auth/login','/auth/register','/auth/google'],isAlreadyLoggedIn);
 app.use('/user',isAuthenticated);
 

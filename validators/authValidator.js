@@ -61,3 +61,16 @@ export const validateCurrSem =
         .isNumeric().withMessage('Semester must be a number')
         .isInt({ min: 1 }).withMessage('Semester must be greater than 0')
         .toInt(); // Optionally, convert the value to an integer
+
+export const validateOTP =
+    body('otp')
+        .trim()
+        .isNumeric().withMessage('OTP must be a number')
+        .isLength({min: 4, max: 4}).withMessage('OTP should be 4 character long.')
+        .custom((otp,{req}) => {
+            const actualOTP=req.session.registerOTP['valueOTP'];
+            if(otp!==actualOTP) {
+                throw new Error('Incorrect OTP!');
+            }
+            return true;
+        });

@@ -4,8 +4,10 @@ import jwt from "jsonwebtoken";
 import { body, validationResult } from "express-validator";
 
 import { logger } from "../utils/errorLogger.js";
-import { registerUser, assignJWT, verifyEmail, generateJWTToken } from "../controllers/authController.js";
-import { validateUsername, validatePassword, validateNewPassword, validateName, validateRollNo, validateCollegeName, validateCurrSem, checkUsernameAlreadyExists } from "../validators/authValidator.js";
+import { registerUser, assignJWT, verifyEmail, generateJWTToken, generateOTP } from "../controllers/authController.js";
+import { validateUsername, validatePassword, validateNewPassword, validateName, validateRollNo, validateCollegeName, validateCurrSem, checkUsernameAlreadyExists, validateOTP } from "../validators/authValidator.js";
+import { registerOTPLimiterPerTry, registerOTPLimiterPerDay, registerOTPLimiterPerDayPerIP } from "../utils/rateLimiter.js";
+import { sendEmail } from "../utils/EmailService.js";
 
 const router = express.Router();
 
@@ -13,11 +15,16 @@ const router = express.Router();
 //instead of app.use() as I want only the /auth/register route for this...
 router.all('/register', async (req, res, next) => {
     // console.log("Inside all()");
-    if (req.session['userCredentials']) {
+    if (req.session['userCredentials'] && req.session.registerOTP && req.session.registerOTP['isVerified']) {
         // console.log("Inside if of all()");
         console.log("One register session already existing. Redirected to completeProfilePage...");
         await logger(req, 'One register session already existing. Redirected to completeProfilePage...');
         res.redirect('/auth/register/completeProfile');
+    }
+    else if (req.session['userCredentials'] && req.session.registerOTP && req.session.registerOTP['isVerified'] === false) {
+        console.log("One register session already existing. Redirected to OTP verification page...");
+        await logger(req, 'One register session already existing. Redirected to OTP verification page...');
+        res.redirect('/auth/register/verifyEmail');
     }
     else {
         // console.log("Inside else of all()");
@@ -115,7 +122,7 @@ router.get('/register', (req, res) => {
     res.render('register.ejs', locals);
 });
 
-router.post('/register/local', [validateUsername, checkUsernameAlreadyExists], async (req, res) => {
+router.post('/register/local', [validateUsername, checkUsernameAlreadyExists], async (req, res, next) => {
     // Handle Validation Errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -134,9 +141,10 @@ router.post('/register/local', [validateUsername, checkUsernameAlreadyExists], a
     //soln: we only take username(email) in the register page and complete profile using password and 
     //other details in the complete profile section
     await req.session.save();
-    console.log("Session data updated! Added temp userCredentials. Now heading to complete profile section!");
-    res.redirect('/auth/register/completeProfile');
-});
+    console.log("Session data updated! Added temp userCredentials. Now heading to email verfication section!");
+    // res.redirect('/auth/register/completeProfile');
+    next();
+}, [registerOTPLimiterPerTry, registerOTPLimiterPerDay, registerOTPLimiterPerDayPerIP], verifyEmail);
 
 router.get('/google', passport.authenticate('google', {
     scope: ['profile', 'email']
@@ -176,7 +184,7 @@ router.get('/google/callback', (req, res, next) => {
     })(req, res, next);
 });
 
-router.post('/register/jwt', [validateUsername, checkUsernameAlreadyExists], async (req, res) => {
+router.post('/register/jwt', [validateUsername, checkUsernameAlreadyExists], async (req, res, next) => {
     // Handle Validation Errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -192,9 +200,10 @@ router.post('/register/jwt', [validateUsername, checkUsernameAlreadyExists], asy
     userCredentials['authenticator'] = 'jwt';
     req.session.userCredentials = userCredentials;
     await req.session.save();
-    console.log("Session data updated! Added temp userCredentials. Now heading to complete profile section!");
-    res.redirect('/auth/register/completeProfile');
-});
+    console.log("Session data updated! Added temp userCredentials. Now heading to email verfication section!");
+    // res.redirect('/auth/register/completeProfile');
+    next();
+}, [registerOTPLimiterPerTry, registerOTPLimiterPerDay, registerOTPLimiterPerDayPerIP], verifyEmail);
 
 // Using a middleware(isAuthorizedForCompleteProfile()) to handle validity of 
 // req(in '/auth/register/completeProfile' route for all methods), so if a 
@@ -210,7 +219,7 @@ router.get('/register/completeProfile', (req, res) => {
     res.render('completeProfile.ejs', locals);
 });
 
-router.post('/register/completeProfile', [validateNewPassword, validateName, validateRollNo, validateCollegeName, validateCurrSem], async (req,res,next) => {
+router.post('/register/completeProfile', [validateNewPassword, validateName, validateRollNo, validateCollegeName, validateCurrSem], async (req, res, next) => {
     // Handle Validation Errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -220,18 +229,114 @@ router.post('/register/completeProfile', [validateNewPassword, validateName, val
         return res.redirect('/auth/register/completeProfile');
     }
     else next();
-}, verifyEmail ,registerUser, assignJWT, async (req, res) => {
+}, registerUser, assignJWT, async (req, res) => {
     delete req.session['userCredentials'];
+    delete req.session['registerOTP'];
     await req.session.save();
-    console.log("Session updated after deleting userCredentials from session!");
+    console.log("Session updated after deleting userCredentials & registerOTP from session!");
+    await req.session.touch();
     res.redirect('/user/dashboard');
 });
 
 router.get('/register/completeProfile/changeUsername', async (req, res) => {
     delete req.session['userCredentials'];
+    delete req.session['registerOTP'];
     await req.session.save();
-    console.log("Session updated after deleting userCredentials from session and redirecting to register Page for change username!");
+    console.log("Session updated after deleting userCredentials & registerOTP from session and redirecting to register Page for change username!");
     res.redirect('/auth/register');
+});
+
+router.get('/register/verifyEmail', async (req, res) => {
+    const maxTries = 2;
+    const currentTime = Date.now();
+    const elapsedTime = Math.floor((currentTime - req.session.registerOTP['issueTime']) / 1000);
+    const remainingTime = Math.max(60 - elapsedTime, 0);
+
+    const errorMsg = req.session['errorMessage'];
+    if (errorMsg) delete req.session['errorMessage'];
+    const locals = {
+        tries: maxTries - req.session.registerOTP['failedAttempts'],
+        remainingTime: remainingTime,
+        username: req.session.userCredentials['username'],
+        errorMessage: errorMsg,
+    };
+    res.render('registerOTP.ejs', locals);
+});
+
+router.post('/register/verifyEmail', [validateOTP], async (req, res) => {
+    //here validator also confirms if OTP is correct or not
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        req.session.registerOTP['failedAttempts']++;
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /register/verifyEmail : ${errorMessages}`);
+
+        if (req.session.registerOTP['failedAttempts'] < 2) {
+            await logger(req, `Validation failed: ${errorMessages}`);
+            return res.redirect('/auth/register/verifyEmail');
+        }
+        else {
+            delete req.session['userCredentials'];
+            delete req.session['registerOTP'];
+            await logger(req, `Validation failed(All attempts over!): ${errorMessages}`);
+            // await req.session.save();
+            console.log("Session updated after deleting userCredentials & registerOTP from session!");
+            console.log("Max tries for OTP verification over! Heading to register page...");
+            return res.redirect('/auth/register');
+        }
+    }
+
+    console.log("OTP verified. Now heading to completeProfile page!");
+    req.session.registerOTP['isVerified'] = true;
+    await req.session.save();
+    res.redirect('/auth/register/completeProfile');
+});
+
+router.get('/register/verifyEmail/cancel', async (req, res) => {
+    delete req.session['userCredentials'];
+    delete req.session['registerOTP'];
+    await req.session.save();
+    console.log("Session updated after deleting userCredentials & registerOTP from session!");
+    res.redirect('/auth/register');
+});
+
+router.get('/register/verifyEmail/resendOTP', [registerOTPLimiterPerTry, registerOTPLimiterPerDay, registerOTPLimiterPerDayPerIP], async (req, res) => {
+    const newOTP = generateOTP();
+
+    const emailStatus = await sendEmail({
+        from: '"myCollege Web App" <gaurangdev777@gmail.com>',
+        to: req.session.userCredentials['username'],
+        subject: 'OTP for user email verification by myCollege Web App',
+        text: 'The OTP for the registration as well as email verification is: ' + newOTP,
+        html: 'The OTP for the registration as well as email verification is: <strong>' + newOTP + '</strong>',
+    });
+
+    if (emailStatus.status) {
+        req.session.registerOTP['valueOTP'] = newOTP;
+        req.session.registerOTP['failedAttempts'] = 0;
+        req.session.registerOTP['issueTime'] = Date.now();
+        console.log("New OTP generated and failedAttempts reset to 0.");
+        console.log("New OTP: " + newOTP);
+        await logger(req, 'New OTP sent successfully!');
+    }
+    else {
+        delete req.session['userCredentials'];
+        delete req.session['registerOTP'];
+        console.log("Session updated after deleting userCredentials & registerOTP from session!");
+
+        if (emailStatus.error) {
+            console.log("An error occured while sending the email!");
+            console.log(emailStatus.error);
+            await logger(req, 'An internal server error occured while sending the email!');
+        }
+        else {
+            console.log("Email sending failed! (Invalid email)");
+            await logger(req, 'Email sending failed! (Invalid Email)');
+            return res.redirect('/auth/register');
+        }
+    }
+    return res.redirect('/auth/register/verifyEmail');
 });
 
 router.post('/logout', (req, res) => {

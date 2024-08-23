@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import env from "dotenv";
 
 import { logger } from "../utils/errorLogger.js";
+import { sendEmail } from "../utils/EmailService.js";
 
 env.config();
 
@@ -19,13 +20,50 @@ app.get('/',(req,res)=> {
 
 
 export const verifyEmail = async (req, res, next) => {
-    const authenticator = req.session.userCredentials['authenticator'];
-    if (authenticator != 'google') {
-        //verify email process
+    // const authenticator = req.session.userCredentials['authenticator'];
+    //verify email process
+    const newOTP= generateOTP();
+
+    const emailStatus = await sendEmail({
+        from: '"myCollege Web App" <gaurangdev777@gmail.com>',
+        to: req.session.userCredentials['username'],
+        subject: 'OTP for user email verification by myCollege Web App',
+        text: 'The OTP for the registration as well as email verification is: '+ newOTP,
+        html: 'The OTP for the registration as well as email verification is: <strong>'+ newOTP + '</strong>',
+    });
+
+    
+    if (emailStatus.status) {
+        req.session['registerOTP'] = {
+            isVerified: false,
+            failedAttempts: 0,
+            valueOTP: newOTP,
+            issueTime: Date.now(),
+        };
+        await req.session.save();
+        console.log("Session updated after adding registerOTP!");
+        console.log("Generated OTP:" + newOTP); //testing
+        console.log("Email sent successfully!");
+        await logger(req, 'OTP sent successfully!');
+        return res.redirect('/auth/register/verifyEmail');
     }
-    req.session.touch();
-    next();
-}
+    else {
+        delete req.session['userCredentials'];
+        delete req.session['registerOTP'];
+        console.log("Session updated after deleting userCredentials & registerOTP from session!");
+        
+        if(emailStatus.error) {
+            console.log("An error occured while sending the email!");
+            console.log(emailStatus.error);
+            await logger(req, 'An internal server error occured while sending the email!');
+        }
+        else{
+            console.log("Email sending failed! (Invalid email)");
+            await logger(req, 'Email sending failed! (Invalid Email)');
+        }
+        return res.redirect('/auth/register');
+    }
+};
 
 export const registerUser = async (req, res, next) => {
     // console.log(req.session);
@@ -85,7 +123,7 @@ export const assignJWT = async (req, res, next) => {
     else if (authenticator != 'local' && authenticator != 'google') {
         console.log("Invalid authenticator value!");
         await logger(req, 'Invalid authentication details. Redirected to register page...');
-        res.redirect('/register');
+        res.redirect('/auth/register');
     }
     next();
 }
@@ -108,7 +146,7 @@ export const changePassword = async (req, res, next) => {
                 errors: 'Curr password entered does not match the actual password!',
             });
         }
-        else if(curr_password===new_password) {
+        else if (curr_password === new_password) {
             console.log("New password must be different from the existing password!");
             return res.json({
                 success: false,
@@ -119,7 +157,7 @@ export const changePassword = async (req, res, next) => {
             const hashedNewPassword = await bcrypt.hash(new_password, parseInt(process.env.BCRYPT_SALT_ROUNDS));
             await pool.query('update users set password=$1 where uid=$2', [hashedNewPassword, req.user['uid']]);
             console.log("User password changed successfully!");
-            await logger(req,'User password changed successfully!');
+            await logger(req, 'User password changed successfully!');
             res.json({ success: true });
         }
     }
@@ -127,12 +165,28 @@ export const changePassword = async (req, res, next) => {
         console.log(error);
         return res.json({ success: false });
     }
+};
+
+export const generateOTP = () => {
+    let val = '';
+    for (let i = 0; i < 4; i++) {
+        let a1 = Math.floor(Math.random() * 10);
+        val += a1.toString();
+    }
+    return val;
 }
 
+//As the req.session will always be available, we dont need to check for it (check notes for further explanation)
+
 export const isAuthorizedForCompleteProfile = async (req, res, next) => {
-    if (req.session && req.session['userCredentials']) {
+    if (req.session['userCredentials'] && ((req.session['registerOTP'] && req.session.registerOTP['isVerified']) || req.session.userCredentials['authenticator'] == 'google')) {
         // console.log(req.session['userCredentials']);
         next();
+    }
+    else if (req.session['userCredentials'] && req.session['registerOTP'] && req.session.registerOTP['isVerified'] === false) {
+        console.log("User email is not verified. Heading to email verification!");
+        await logger(req, 'User email is not verified. Heading to email verification!');
+        res.redirect('/auth/register/verifyEmail');
     }
     else {
         console.log("User is not authorized for this request in completeProfile endpoint!");
@@ -146,7 +200,7 @@ export const isAuthenticated = async (req, res, next) => {
         next();
     }
     else {
-        console.log("User not authorized for this section!");
+        console.log("User not authorized for this section in user route!");
         await logger(req, 'User is not authorized for this section! You may have logged out, please log in again...');
         // console.log("Session before:");
         // console.log(req.session);
@@ -166,4 +220,19 @@ export const isAlreadyLoggedIn = async (req, res, next) => {
         res.redirect('/user/dashboard');
     }
     else next();
+}
+
+export const isAuthorizedForRegisterOTP = async (req, res, next) => {
+    if (req.session['userCredentials'] && req.session['registerOTP'] && req.session.registerOTP['isVerified'] === false)
+        next();
+    else if (req.session['userCredentials'] && req.session['registerOTP'] && req.session.registerOTP['isVerified'] === true) {
+        console.log("User email has been verified. Redirecting to completeProfile page!");
+        await logger(req, 'User email has been verified. Redirecting to completeProfile page!');
+        res.redirect('/auth/register/completeProfile');
+    }
+    else {
+        console.log("User not authorized for this section in register (verifyEmail)!");
+        await logger(req, 'User is not authorized for this section! Please go to \'register\' then come here!');
+        res.redirect('/');
+    }
 }

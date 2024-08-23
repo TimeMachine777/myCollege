@@ -63,6 +63,7 @@ const changePasswordFormDiv=document.querySelector('#change-password-card .card-
 changePasswordBtn.addEventListener('click', (event) => {
     changePasswordFormDiv.classList.remove('hide');
     changePasswordBtn.classList.add('hide');
+    window.location.href='#change-password-card';
 });
 
 changePasswordCancelBtn.addEventListener('click', (event) => {
@@ -119,6 +120,7 @@ const changeDetailsFormDiv=document.querySelector('#change-user-details-card .ca
 changeDetailsBtn.addEventListener('click', (event) => {
     changeDetailsFormDiv.classList.remove('hide');
     changeDetailsBtn.classList.add('hide');
+    window.location.href='#change-user-details-card';
 });
 
 changeDetailsCancelBtn.addEventListener('click', (event) => {
