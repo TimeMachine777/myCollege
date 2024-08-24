@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password - OTP</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> -->
+    <link rel="stylesheet" href="/css/partials/homeCommon.css">
+</head>
+<body>
+
+    <section class="section is-flex is-align-items-center is-justify-content-center" style="height: 100%;">
+        <div class="container">
+            <h1 class="title is-size-1">OTP for Forgot Password</h1>
+            <p class="subtitle">Enter the OTP sent to: <%= username %></p>
+            <p class="is-size-5">Tries remaining: <%= tries %>/2</p>
+            <p class="is-size-6 has-text-warning">Caution: Max OTP requests allowed per username per day is 4</p>
+            <form class="mt-5">
+                <div class="field">
+                    <label class="label">OTP :</label>
+                    <div class="control">
+                        <input class="input" type="text" name="otp" minlength="4" maxlength="4" autofocus required>
+                    </div>
+                </div>
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button class="button is-link" type="submit" formmethod="post" formaction="/auth/login/forgotPassword/otp">Submit</button>
+                    </div>
+                    <div class="control">
+                        <button class="button is-danger" type="submit" form="dummy-form" formmethod="get" formaction="/auth/login/forgotPassword/otp/cancel">Cancel</button>
+                    </div>
+                    <div class="control">
+                        <button class="button is-ghost" type="submit" form="dummy-form" formmethod="get" formaction="/auth/login/forgotPassword/otp/resendOTP" id="resend-otp-btn" disabled>Resend OTP (<span id="countdown"><%= remainingTime %></span>s)</button>
+                    </div>
+                </div>
+            </form>
+            <form id="dummy-form" style="display: none;"></form>
+        </div>
+    </section>
+
+    <%- include('partials/commonEnd.ejs') %>
+
+    <script src="/js/partials/homeCommon.js"></script>
+    <script>
+        const countdownElement = document.getElementById('countdown');
+        const resendOtpBtn = document.getElementById('resend-otp-btn');
+        let countdown = <%= remainingTime %>; // Set your desired countdown time in seconds
+
+        const timer = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+
+            if (countdown <= 0) {
+                clearInterval(timer);
+                resendOtpBtn.disabled = false;
+                resendOtpBtn.textContent = "Resend OTP";
+            }
+        }, 1000); // Update every second
+    </script>
+</body>
+</html>

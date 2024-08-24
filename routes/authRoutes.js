@@ -4,9 +4,10 @@ import jwt from "jsonwebtoken";
 import { body, validationResult } from "express-validator";
 
 import { logger } from "../utils/errorLogger.js";
-import { registerUser, assignJWT, verifyEmail, generateJWTToken, generateOTP } from "../controllers/authController.js";
-import { validateUsername, validatePassword, validateNewPassword, validateName, validateRollNo, validateCollegeName, validateCurrSem, checkUsernameAlreadyExists, validateOTP } from "../validators/authValidator.js";
-import { registerOTPLimiterPerTry, registerOTPLimiterPerDay, registerOTPLimiterPerDayPerIP } from "../utils/rateLimiter.js";
+import { registerUser, assignJWT, verifyEmail, generateJWTToken, generateOTP, forgotVerifyEmail, forgotChangePassword } from "../controllers/authController.js";
+import { validateUsername, validatePassword, validateNewPassword, validateName, validateRollNo, validateCollegeName, validateCurrSem, checkUsernameAlreadyExists, validateRegisterOTP, checkUsernameRegistered, validateForgotOTP } from "../validators/authValidator.js";
+import { validateChangeRepeatNewPassword, validateChangeNewPassword } from "../validators/userValidator.js";
+import { registerOTPLimiterPerTry, registerOTPLimiterPerDay, registerOTPLimiterPerDayPerIP, forgotOTPLimiterPerTry, forgotOTPLimiterPerDay, forgotOTPLimiterPerDayPerIP } from "../utils/rateLimiter.js";
 import { sendEmail } from "../utils/EmailService.js";
 
 const router = express.Router();
@@ -263,7 +264,7 @@ router.get('/register/verifyEmail', async (req, res) => {
     res.render('registerOTP.ejs', locals);
 });
 
-router.post('/register/verifyEmail', [validateOTP], async (req, res) => {
+router.post('/register/verifyEmail', [validateRegisterOTP], async (req, res) => {
     //here validator also confirms if OTP is correct or not
     // Handle Validation Errors
     const errors = validationResult(req);
@@ -319,6 +320,7 @@ router.get('/register/verifyEmail/resendOTP', [registerOTPLimiterPerTry, registe
         console.log("New OTP generated and failedAttempts reset to 0.");
         console.log("New OTP: " + newOTP);
         await logger(req, 'New OTP sent successfully!');
+        return res.redirect('/auth/register/verifyEmail');
     }
     else {
         delete req.session['userCredentials'];
@@ -333,10 +335,161 @@ router.get('/register/verifyEmail/resendOTP', [registerOTPLimiterPerTry, registe
         else {
             console.log("Email sending failed! (Invalid email)");
             await logger(req, 'Email sending failed! (Invalid Email)');
-            return res.redirect('/auth/register');
+        }
+        return res.redirect('/auth/register');
+    }
+});
+
+router.get('/login/forgotPassword/username', async (req, res) => {
+    const errorMsg = req.session['errorMessage'];
+    if (errorMsg) delete req.session['errorMessage'];
+    const locals = {
+        errorMessage: errorMsg,
+    };
+    res.render('forgotPassUsername.ejs', locals);
+});
+
+router.post('/login/forgotPassword/username', [validateUsername, checkUsernameRegistered], async (req, res, next) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /login/forgotPassword/username : ${errorMessages}`);
+        await logger(req, `Validation failed: ${errorMessages}`);
+        return res.redirect('/auth/login/forgotPassword/username');
+    }
+
+    const forgotUserCredentials = {
+        username: req.body['username'],
+    };
+    req.session.forgotUserCredentials = forgotUserCredentials;
+    await req.session.save();
+    console.log("Session data updated! Added temp forgotUserCredentials. Now heading to email verfication section!");
+    next();
+}, [forgotOTPLimiterPerTry, forgotOTPLimiterPerDay, forgotOTPLimiterPerDayPerIP], forgotVerifyEmail);
+
+router.get('/login/forgotPassword/otp', async (req, res) => {
+    const maxTries = 2;
+    const currentTime = Date.now();
+    const elapsedTime = Math.floor((currentTime - req.session.forgotOTP['issueTime']) / 1000);
+    const remainingTime = Math.max(60 - elapsedTime, 0);
+
+    const errorMsg = req.session['errorMessage'];
+    if (errorMsg) delete req.session['errorMessage'];
+    const locals = {
+        tries: maxTries - req.session.forgotOTP['failedAttempts'],
+        remainingTime: remainingTime,
+        username: req.session.forgotUserCredentials['username'],
+        errorMessage: errorMsg,
+    };
+    res.render('forgotPassOTP.ejs', locals);
+});
+
+router.post('/login/forgotPassword/otp', [validateForgotOTP], async (req, res, next) => {
+    //here validator also confirms if OTP is correct or not
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        req.session.forgotOTP['failedAttempts']++;
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /login/forgotPassword/otp : ${errorMessages}`);
+
+        if (req.session.forgotOTP['failedAttempts'] < 2) {
+            await logger(req, `Validation failed: ${errorMessages}`);
+            return res.redirect('/auth/login/forgotPassword/otp');
+        }
+        else {
+            delete req.session['forgotUserCredentials'];
+            delete req.session['forgotOTP'];
+            await logger(req, `Validation failed(All attempts over!): ${errorMessages}`);
+            // await req.session.save();
+            console.log("Session updated after deleting forgotUserCredentials & forgotOTP from session!");
+            console.log("Max tries for OTP verification over! Heading to login page...");
+            return res.redirect('/auth/login');
         }
     }
-    return res.redirect('/auth/register/verifyEmail');
+
+    console.log("OTP verified. Now heading to change password page!");
+    req.session.forgotOTP['isVerified'] = true;
+    await req.session.save();
+    res.redirect('/auth/login/forgotPassword/newPassword');
+});
+
+router.get('/login/forgotPassword/otp/cancel', async (req, res) => {
+    delete req.session['forgotUserCredentials'];
+    delete req.session['forgotOTP'];
+    await req.session.save();
+    console.log("Session updated after deleting forgotUserCredentials & forgotOTP from session!");
+    res.redirect('/auth/login');
+});
+
+router.get('/login/forgotPassword/otp/resendOTP', [forgotOTPLimiterPerTry, forgotOTPLimiterPerDay, forgotOTPLimiterPerDayPerIP], async (req, res) => {
+    const newOTP = generateOTP();
+
+    const emailStatus = await sendEmail({
+        from: '"myCollege Web App" <gaurangdev777@gmail.com>',
+        to: req.session.forgotUserCredentials['username'],
+        subject: 'OTP for user email verification by myCollege Web App',
+        text: 'The OTP for forgot password email verification is: ' + newOTP,
+        html: 'The OTP for forgot password email verification is: <strong>' + newOTP + '</strong>',
+    });
+
+    if (emailStatus.status) {
+        req.session.forgotOTP['valueOTP'] = newOTP;
+        req.session.forgotOTP['failedAttempts'] = 0;
+        req.session.forgotOTP['issueTime'] = Date.now();
+        console.log("New OTP generated and failedAttempts reset to 0.");
+        console.log("New OTP: " + newOTP);
+        await logger(req, 'New OTP sent successfully!');
+        return res.redirect('/auth/login/forgotPassword/otp');
+    }
+    else {
+        delete req.session['forgotUserCredentials'];
+        delete req.session['forgotOTP'];
+        console.log("Session updated after deleting forgotUserCredentials & forgotOTP from session!");
+
+        if (emailStatus.error) {
+            console.log("An error occured while sending the email!");
+            console.log(emailStatus.error);
+            await logger(req, 'An internal server error occured while sending the email!');
+        }
+        else {
+            console.log("Email sending failed! (Invalid email)");
+            await logger(req, 'Email sending failed! (Invalid Email)');
+        }
+        return res.redirect('/auth/login/forgotPassword/username');
+    }
+});
+
+router.get('/login/forgotPassword/newPassword', async (req, res) => {
+    const errorMsg = req.session['errorMessage'];
+    if (errorMsg) delete req.session['errorMessage'];
+    const locals = {
+        username: req.session.forgotUserCredentials['username'],
+        errorMessage: errorMsg,
+    };
+    res.render('forgotPassNewPass.ejs', locals);
+});
+
+router.post('/login/forgotPassword/newPassword', [validateChangeRepeatNewPassword, validateChangeNewPassword], async (req, res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /auth/login/forgotPassword/newPassword (post) : ${errorMessages}`);
+        await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.redirect('/auth/login/forgotPassword/newPassword');
+    }
+
+    await forgotChangePassword(req, res);
+});
+
+router.get('/login/forgotPassword/newPassword/cancel', async (req, res) => {
+    delete req.session['forgotUserCredentials'];
+    delete req.session['forgotOTP'];
+    await req.session.save();
+    console.log("Session updated after deleting forgotUserCredentials & forgotOTP from session!");
+    res.redirect('/auth/login');
 });
 
 router.post('/logout', (req, res) => {

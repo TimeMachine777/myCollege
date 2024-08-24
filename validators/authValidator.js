@@ -22,7 +22,7 @@ export const validateNewPassword=
         .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
         .matches(/\d/).withMessage('Password must contain at least one number')
         .matches(/[\W_]/).withMessage('Password must contain at least one special character')
-        .matches(/^[A-Za-z0-9!@#$%^&*()]+$/).withMessage('Password contains invalid characters( only allowed: a-z,A-Z,0-9,!@#$%^&*() )');
+        .matches(/^[A-Za-z0-9!@#$%^&*()_]+$/).withMessage('Password contains invalid characters( only allowed: a-z,A-Z,0-9,!@#$%^&*()_ )');
 
 export const checkUsernameAlreadyExists =
     body('username').bail()
@@ -62,13 +62,35 @@ export const validateCurrSem =
         .isInt({ min: 1 }).withMessage('Semester must be greater than 0')
         .toInt(); // Optionally, convert the value to an integer
 
-export const validateOTP =
+export const validateRegisterOTP =
     body('otp')
         .trim()
         .isNumeric().withMessage('OTP must be a number')
         .isLength({min: 4, max: 4}).withMessage('OTP should be 4 character long.')
         .custom((otp,{req}) => {
             const actualOTP=req.session.registerOTP['valueOTP'];
+            if(otp!==actualOTP) {
+                throw new Error('Incorrect OTP!');
+            }
+            return true;
+        });
+
+export const checkUsernameRegistered =
+    body('username').bail()
+        .custom(async (username) => {
+            const results= await pool.query('select * from users where username=$1',[username]);
+            if(results.rows.length===0)
+                throw new Error('Email not registered!');
+            return true;
+        }); 
+
+export const validateForgotOTP =
+    body('otp')
+        .trim()
+        .isNumeric().withMessage('OTP must be a number')
+        .isLength({min: 4, max: 4}).withMessage('OTP should be 4 character long.')
+        .custom((otp,{req}) => {
+            const actualOTP=req.session.forgotOTP['valueOTP'];
             if(otp!==actualOTP) {
                 throw new Error('Incorrect OTP!');
             }

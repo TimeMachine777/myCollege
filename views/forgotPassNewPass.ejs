@@ -3,57 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Profile</title>
+    <title>Forgot Password - Change Password</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="/css/partials/homeCommon.css">
 </head>
 <body>
-    <!-- Auth-Navbar -->
-    <%- include('partials/navbarAuth.ejs') %>
 
     <section class="section">
         <div class="container">
-            <h1 class="title">Complete your Profile</h1>
-            <p class="content"><strong>Username</strong>: <%= username %></p>
-            <form action="/auth/register/completeProfile" method="post">
+            <h1 class="title">Forgot Password</h1>
+            <p class="subtitle">Please enter a new password: </p>
+            <form>
                 <div class="field">
-                    <label class="label" for="password">Password <abbr title="required" class="required">*</abbr></label>
+                    <label class="label">New password <abbr title="required" class="required">*</abbr></label>
                     <div class="control">
-                        <input class="input" type="password" id="password" name="password" minlength="8" maxlength="20" title="Must contain at least 1 of each of the following: lowercase letter, uppercase letter, special symbol(!@#$%^&*()_) and number. Min-length=8 and max-length=20." required>
+                        <input class="input input-small" type="password" name="new_password" minlength="8" maxlength="20" title="Must contain at least 1 of each of the following: lowercase letter, uppercase letter, special symbol(!@#$%^&*()_) and number. Min-length=8 and max-length=20." required>
                     </div>
                     <p class="help" id="password-strength-text"></p>
                 </div>
                 <div class="field">
-                    <label class="label" for="name">Name <abbr title="required" class="required">*</abbr></label>
+                    <label class="label">Repeat new password <abbr title="required" class="required">*</abbr></label>
                     <div class="control">
-                        <input class="input" type="text" id="name" name="name" maxlength="100" required>
+                        <input class="input input-small" type="password" name="repeat_new_password" minlength="8" maxlength="20" required>
                     </div>
                 </div>
-                <div class="field">
-                    <label class="label" for="roll_no">Roll No <abbr title="required" class="required">*</abbr></label>
+                <div class="field is-grouped">
                     <div class="control">
-                        <input class="input" type="text" id="roll_no" name="roll_no" maxlength="20" required>
+                        <button class="button is-link" type="submit" formmethod="post" formaction="/auth/login/forgotPassword/newPassword">Submit</button>
                     </div>
-                </div>
-                <div class="field">
-                    <label class="label" for="college">College</label>
                     <div class="control">
-                        <input class="input" type="text" id="college" maxlength="50" name="college">
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label" for="current_sem">Current Semester <abbr title="required" class="required">*</abbr></label>
-                    <div class="control">
-                        <input class="input" type="number" id="current_sem" name="current_sem" min="1" required>
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="control">
-                        <button class="button is-primary" type="submit">Submit</button>
-                        <a class="button is-warning" href="/auth/register/completeProfile/changeUsername">Change username</a>
+                        <button class="button is-danger" type="submit" form="dummy-form" formmethod="get" formaction="/auth/login/forgotPassword/newPassword/cancel">Cancel</button>
                     </div>
                 </div>
             </form>
+            <form id="dummy-form" style="display: none;"></form>
         </div>
     </section>
 
@@ -81,7 +65,7 @@
             return score;
         }
 
-        document.getElementById('password').addEventListener('input', function (event) {
+        document.querySelector('input[name="new_password"]').addEventListener('input', function (event) {
             const password = event.target.value;
             const strengthScore = assessPasswordStrength(password);
             const strengthText = document.getElementById('password-strength-text');

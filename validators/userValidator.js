@@ -261,4 +261,4 @@ export const validateChangeNewPassword=
         .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
         .matches(/\d/).withMessage('Password must contain at least one number')
         .matches(/[\W_]/).withMessage('Password must contain at least one special character')
-        .matches(/^[A-Za-z0-9!@#$%^&*()]+$/).withMessage('Password contains invalid characters( only allowed: a-z,A-Z,0-9,!@#$%^&*() )');
+        .matches(/^[A-Za-z0-9!@#$%^&*()_]+$/).withMessage('Password contains invalid characters( only allowed: a-z,A-Z,0-9,!@#$%^&*()_ )');

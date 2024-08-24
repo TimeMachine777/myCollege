@@ -22,17 +22,17 @@ app.get('/',(req,res)=> {
 export const verifyEmail = async (req, res, next) => {
     // const authenticator = req.session.userCredentials['authenticator'];
     //verify email process
-    const newOTP= generateOTP();
+    const newOTP = generateOTP();
 
     const emailStatus = await sendEmail({
         from: '"myCollege Web App" <gaurangdev777@gmail.com>',
         to: req.session.userCredentials['username'],
         subject: 'OTP for user email verification by myCollege Web App',
-        text: 'The OTP for the registration as well as email verification is: '+ newOTP,
-        html: 'The OTP for the registration as well as email verification is: <strong>'+ newOTP + '</strong>',
+        text: 'The OTP for the registration as well as email verification is: ' + newOTP,
+        html: 'The OTP for the registration as well as email verification is: <strong>' + newOTP + '</strong>',
     });
 
-    
+
     if (emailStatus.status) {
         req.session['registerOTP'] = {
             isVerified: false,
@@ -49,21 +49,65 @@ export const verifyEmail = async (req, res, next) => {
     }
     else {
         delete req.session['userCredentials'];
-        delete req.session['registerOTP'];
-        console.log("Session updated after deleting userCredentials & registerOTP from session!");
-        
-        if(emailStatus.error) {
+        // delete req.session['registerOTP'];
+        console.log("Session updated after deleting userCredentials from session!");
+
+        if (emailStatus.error) {
             console.log("An error occured while sending the email!");
             console.log(emailStatus.error);
             await logger(req, 'An internal server error occured while sending the email!');
         }
-        else{
+        else {
             console.log("Email sending failed! (Invalid email)");
             await logger(req, 'Email sending failed! (Invalid Email)');
         }
         return res.redirect('/auth/register');
     }
 };
+
+export const forgotVerifyEmail = async (req, res, next) => {
+    const newOTP = generateOTP();
+
+    const emailStatus = await sendEmail({
+        from: '"myCollege Web App" <gaurangdev777@gmail.com>',
+        to: req.session.forgotUserCredentials['username'],
+        subject: 'OTP for user email verification by myCollege Web App',
+        text: 'The OTP for forgot password email verification is: ' + newOTP,
+        html: 'The OTP for forgot password email verification is: <strong>' + newOTP + '</strong>',
+    });
+
+
+    if (emailStatus.status) {
+        req.session['forgotOTP'] = {
+            isVerified: false,
+            failedAttempts: 0,
+            valueOTP: newOTP,
+            issueTime: Date.now(),
+        };
+        await req.session.save();
+        console.log("Session updated after adding forgotOTP!");
+        console.log("Generated OTP:" + newOTP); //testing
+        console.log("Email sent successfully!");
+        await logger(req, 'OTP sent successfully!');
+        return res.redirect('/auth/login/forgotPassword/otp');
+    }
+    else {
+        delete req.session['forgotUserCredentials'];
+        // delete req.session['forgotOTP'];
+        console.log("Session updated after deleting userCredentials from session!");
+
+        if (emailStatus.error) {
+            console.log("An error occured while sending the email!");
+            console.log(emailStatus.error);
+            await logger(req, 'An internal server error occured while sending the email!');
+        }
+        else {
+            console.log("Email sending failed! (Invalid email)");
+            await logger(req, 'Email sending failed! (Invalid Email)');
+        }
+        return res.redirect('/auth/login/forgotPassword/username');
+    }
+}
 
 export const registerUser = async (req, res, next) => {
     // console.log(req.session);
@@ -133,37 +177,29 @@ export const generateJWTToken = (payload, expiresIn) => {
     return jwtToken;
 }
 
-export const changePassword = async (req, res, next) => {
-    const { curr_password, new_password } = req.body;
+export const forgotChangePassword = async (req, res) => {
+    const { new_password } = req.body;
     try {
-        const results = await pool.query('select password from users where uid=$1', [req.user['uid']]);
+        const results = await pool.query('select password from users where username=$1', [req.session.forgotUserCredentials['username']]);
         const storedPassword = results.rows[0]['password'];
-        const compareResult = await bcrypt.compare(curr_password, storedPassword);
-        if (!compareResult) {
-            console.log("Curr password entered does not match the actual password!");
-            return res.json({
-                success: false,
-                errors: 'Curr password entered does not match the actual password!',
-            });
-        }
-        else if (curr_password === new_password) {
+        const compareResult = await bcrypt.compare(new_password, storedPassword);
+        if (compareResult) {
             console.log("New password must be different from the existing password!");
-            return res.json({
-                success: false,
-                errors: 'New password must be different from the existing password!',
-            });
+            await logger(req, 'New password must be different from the existing password!');
+            return res.redirect('/auth/login/forgotPassword/newPassword');
         }
         else {
             const hashedNewPassword = await bcrypt.hash(new_password, parseInt(process.env.BCRYPT_SALT_ROUNDS));
-            await pool.query('update users set password=$1 where uid=$2', [hashedNewPassword, req.user['uid']]);
+            await pool.query('update users set password=$1 where username=$2', [hashedNewPassword, req.session.forgotUserCredentials['username']]);
             console.log("User password changed successfully!");
             await logger(req, 'User password changed successfully!');
-            res.json({ success: true });
+            return res.redirect('/auth/login');
         }
     }
     catch (error) {
         console.log(error);
-        return res.json({ success: false });
+        await logger(req, 'Some error occured while changing the password!');
+        return res.redirect('/auth/login');
     }
 };
 
@@ -190,7 +226,7 @@ export const isAuthorizedForCompleteProfile = async (req, res, next) => {
     }
     else {
         console.log("User is not authorized for this request in completeProfile endpoint!");
-        await logger(req, 'User is not authorized for this request in completeProfile endpoint!');
+        await logger(req, 'User is not authorized to access the completeProfile page!');
         res.redirect('/auth/register');
     }
 }
@@ -231,8 +267,38 @@ export const isAuthorizedForRegisterOTP = async (req, res, next) => {
         res.redirect('/auth/register/completeProfile');
     }
     else {
-        console.log("User not authorized for this section in register (verifyEmail)!");
+        console.log("User not authorized to access this section in register (verifyEmail) endpoint!");
         await logger(req, 'User is not authorized for this section! Please go to \'register\' then come here!');
         res.redirect('/');
+    }
+}
+
+export const isAuthorizedForForgotOTP = async (req, res, next) => {
+    if (req.session['forgotUserCredentials'] && req.session['forgotOTP'] && req.session.forgotOTP['isVerified'] === false)
+        next();
+    else if (req.session['forgotUserCredentials'] && req.session['forgotOTP'] && req.session.forgotOTP['isVerified'] === true) {
+        console.log("User email has been verified. Redirecting to change password page!");
+        await logger(req, 'User email has been verified. Redirecting to change password page!');
+        res.redirect('/auth/login/forgotPassword/newPassword');
+    }
+    else {
+        console.log("User not authorized to access this section in login (verifyEmail for forgot password) endpoint!");
+        await logger(req, 'User is not authorized for this section! Please go to \'login\' -> \'Forgot Password\' then come here!');
+        res.redirect('/');
+    }
+}
+
+export const isAuthorizedForForgotNewPassword = async (req, res, next) => {
+    if (req.session['forgotUserCredentials'] && req.session['forgotOTP'] && req.session.forgotOTP['isVerified'] === true)
+        next();
+    else if (req.session['forgotUserCredentials'] && req.session['forgotOTP'] && req.session.forgotOTP['isVerified'] === false) {
+        console.log("User email is not verified. Heading to email verification!");
+        await logger(req, 'User email is not verified. Heading to email verification!');
+        res.redirect('/auth/login/forgotPassword/otp');
+    }
+    else {
+        console.log("User is not authorized to access forgot change password page!");
+        await logger(req, 'User is not authorized to access forgot change password page!');
+        res.redirect('/auth/login');
     }
 }

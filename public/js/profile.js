@@ -9,7 +9,7 @@ function assessPasswordStrength(password) {
     if (/[a-z]/.test(password)) score += 1;
     if (/\d/.test(password)) score += 1;
     if (/[\W_]/.test(password)) score += 1;
-    if (/^[A-Za-z0-9!@#$%^&*()]+$/.test(password)) {
+    if (/^[A-Za-z0-9!@#$%^&*()_]+$/.test(password)) {
         score += 1;
     } else {
         score = 0;
