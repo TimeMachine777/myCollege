@@ -161,7 +161,7 @@ export const assignJWT = async (req, res, next) => {
     const authenticator = req.session.userCredentials['authenticator'];
     if (authenticator == 'jwt') {
         const jwtToken = generateJWTToken(req.user, '1h');
-        res.cookie('jwt', jwtToken, { httpOnly: true, maxAge: 1000 * 60 * 60 });
+        res.cookie('jwt', jwtToken, { httpOnly: true, maxAge: 1000 * 60 * 60 * 6}); // 6 hours
         console.log("JWT Token generated and saved successfully in cookie 'jwt'!");
     }
     else if (authenticator != 'local' && authenticator != 'google') {

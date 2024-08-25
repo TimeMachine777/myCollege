@@ -100,7 +100,7 @@ router.post('/login/jwt', [validateUsername, validatePassword], async (req, res,
             return res.redirect('/auth/login');
         }
         const jwtToken = generateJWTToken(user, '1h');
-        res.cookie('jwt', jwtToken, { httpOnly: true, maxAge: 1000 * 60 * 60 });
+        res.cookie('jwt', jwtToken, { httpOnly: true, maxAge: 1000 * 60 * 60 * 6}); // 6 hours
         req.login(user, async (error) => {
             if (error) {
                 console.log(error);
@@ -180,7 +180,7 @@ router.get('/google/callback', (req, res, next) => {
                     return res.redirect('/');
                 }
                 const jwtToken = generateJWTToken(user, '1h');
-                res.cookie('jwt', jwtToken, { httpOnly: true, maxAge: 1000 * 60 * 60 });
+                res.cookie('jwt', jwtToken, { httpOnly: true, maxAge: 1000 * 60 * 60 * 6}); // 6 hours
                 console.log("JWT Token generated and saved successfully in cookie 'jwt'!");
                 console.log("User logged in using google.");
                 return res.redirect('/user/dashboard');
