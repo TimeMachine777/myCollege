@@ -11,36 +11,40 @@ aside.menu {
     border-top: 2px solid hsl(48, 100%, 67%);
 }
 
-.menu hr{
+.menu hr {
     background-color: hsl(48, 100%, 67%);
 }
 
 /* theme adjustments in inputs ------------- */
 
 /* Dark mode specific styling */
-@media (prefers-color-scheme: dark) {
-    input[type="password"]::-ms-reveal, /* For Internet Explorer */
-    input[type="password"]::-webkit-clear-button,
-    input[type="password"]::-webkit-calendar-picker-indicator,
-    input[type="datetime-local"]::-webkit-clear-button,
-    input[type="datetime-local"]::-webkit-calendar-picker-indicator,
-    input[type="password"]::-ms-reveal { /* "Show Password" button in Chrome */
-      filter: invert(100%); /* Invert color to make it visible on dark background */
-    }
+
+.dark-theme input[type="password"]::-ms-reveal,
+/* For Internet Explorer */
+.dark-theme input[type="password"]::-webkit-clear-button,
+.dark-theme input[type="password"]::-webkit-calendar-picker-indicator,
+.dark-theme input[type="datetime-local"]::-webkit-clear-button,
+.dark-theme input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.dark-theme input[type="password"]::-ms-reveal {
+    /* "Show Password" button in Chrome */
+    filter: invert(100%);
+    /* Invert color to make it visible on dark background */
 }
-  
+
 /* Light mode specific styling (no change, just ensuring visibility) */
-@media (prefers-color-scheme: light) {
-    input[type="password"]::-ms-reveal, /* For Internet Explorer */
-    input[type="password"]::-webkit-clear-button,
-    input[type="password"]::-webkit-calendar-picker-indicator,
-    input[type="datetime-local"]::-webkit-clear-button,
-    input[type="datetime-local"]::-webkit-calendar-picker-indicator,
-    input[type="password"]::-ms-reveal { /* "Show Password" button in Chrome */
-        filter: none; /* No inversion needed for light backgrounds */
-    }
+
+.light-theme input[type="password"]::-ms-reveal,
+/* For Internet Explorer */
+.light-theme input[type="password"]::-webkit-clear-button,
+.light-theme input[type="password"]::-webkit-calendar-picker-indicator,
+.light-theme input[type="datetime-local"]::-webkit-clear-button,
+.light-theme input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.light-theme input[type="password"]::-ms-reveal {
+    /* "Show Password" button in Chrome */
+    filter: none;
+    /* No inversion needed for light backgrounds */
 }
-    
+
 /* -------------------------- */
 
 /* Loading overlay CSS --------------*/
@@ -52,11 +56,13 @@ aside.menu {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+    background: rgba(0, 0, 0, 0.5);
+    /* semi-transparent background */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* ensure it is on top of all other content */
+    z-index: 1000;
+    /* ensure it is on top of all other content */
 }
 
 /* Spinner style */
@@ -70,8 +76,13 @@ aside.menu {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .hide {
@@ -83,33 +94,41 @@ aside.menu {
 body {
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Ensure the body takes up the full height of the viewport */
+    min-height: 100vh;
+    /* Ensure the body takes up the full height of the viewport */
     margin: 0;
 }
 
 .footer {
-    padding: 12px 24px; /* Adjust the padding to make it smaller */
-    margin-top: auto; /* Pushes the footer to the bottom */
-    background-color: #29292c; /* Grey background */
-    color: #f8f9fa; /* Light text color */
-    width: 100%; /* Ensure the footer takes full width */
+    padding: 12px 24px;
+    /* Adjust the padding to make it smaller */
+    margin-top: auto;
+    /* Pushes the footer to the bottom */
+    background-color: #29292c;
+    /* Grey background */
+    color: #f8f9fa;
+    /* Light text color */
+    width: 100%;
+    /* Ensure the footer takes full width */
 }
 
 .footer .footer-link {
-    color: #48c774; /* Light link color for dark mode */
+    color: #48c774;
+    /* Light link color for dark mode */
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .footer {
-        padding: 8px 16px; /* Smaller padding on smaller screens */
+        padding: 8px 16px;
+        /* Smaller padding on smaller screens */
     }
 }
 
 
 /* Form required field css code --------------- */
 
-.required{
+.required {
     color: red;
     text-decoration: none;
 }
@@ -121,13 +140,17 @@ body {
     position: fixed;
     top: 20px;
     right: 20px;
-    max-width: 300px; /* Set the maximum width for the notifications */
-    z-index: 999; /* Ensure it appears on top of other elements */
+    max-width: 300px;
+    /* Set the maximum width for the notifications */
+    z-index: 999;
+    /* Ensure it appears on top of other elements */
 }
 
 .notification {
-    margin-bottom: 0px; /* Add some space between notifications */
-    width: auto; /* Adjust width to fit content */
+    margin-bottom: 0px;
+    /* Add some space between notifications */
+    width: auto;
+    /* Adjust width to fit content */
 }
 
 .notification .delete {
@@ -146,12 +169,85 @@ form .label {
 
 /* Root bulma variables */
 /* :root {
-    --bulma-primary-h: 88deg;
-    --bulma-primary-s: 64%;
-    --bulma-primary-l: 70%;
-    --bulma-success-s: 82%;
-    --bulma-success-l: 35%;
+    --bulma-primary-h: 242deg;
+    --bulma-primary-l: 84%;
+    --bulma-info-h: 199deg;
+    --bulma-info-l: 87%;
   } */
-  
-  
-  
+
+
+/* Theme toggle button css code----------------------------- */
+/* From Uiverse.io by rishichawda */
+/* The switch - the box around the slider */
+#theme-toggle-button {
+    font-size: 17px;
+    position: relative;
+    display: flex;
+    width: 3em;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hide default HTML checkbox */
+#toggle {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+#container,
+#patches,
+#stars,
+#button,
+#sun,
+#moon,
+#cloud {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.25s;
+}
+
+/* night sky background */
+#toggle:checked+svg #container {
+    fill: #2b4360;
+}
+
+/* move button to right when checked */
+#toggle:checked+svg #button {
+    transform: translate(28px, 2.333px);
+}
+
+/* show/hide sun and moon based on checkbox state */
+#sun {
+    opacity: 1;
+}
+
+#toggle:checked+svg #sun {
+    opacity: 0;
+}
+
+#moon {
+    opacity: 0;
+}
+
+#toggle:checked+svg #moon {
+    opacity: 1;
+}
+
+/* show or hide background items on checkbox state */
+#cloud {
+    opacity: 1;
+}
+
+#toggle:checked+svg #cloud {
+    opacity: 0;
+}
+
+#stars {
+    opacity: 0;
+}
+
+#toggle:checked+svg #stars {
+    opacity: 1;
+}

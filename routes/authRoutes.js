@@ -158,6 +158,10 @@ router.get('/google/callback', (req, res, next) => {
             await logger(req, '500: Internal Server Error. Redirected to home page...');
             return res.redirect('/');
         }
+        if(!user) {
+            console.log("Google login failed! Heading to home page...");
+            return res.redirect('/');
+        }
         if (user['uid'] == null) {
             const userCredentials = {
                 username: user['username'],

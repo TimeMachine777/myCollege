@@ -25,6 +25,47 @@ if ($navbarBurgers.length > 0) {
     const $notification = $delete.parentNode;
 
     $delete.addEventListener('click', () => {
-    $notification.parentNode.removeChild($notification);
+        $notification.parentNode.removeChild($notification);
     });
 });
+
+
+// Theme toggle button code ------------------------------------------------
+const toggleButton = document.getElementById('toggle');
+const themeToggleLabel = document.getElementById('theme-toggle-button');
+const documentRoot= document.documentElement; //html element
+
+if(toggleButton) {
+    function setTheme(theme) {
+        documentRoot.classList.remove('light-theme','dark-theme');
+        documentRoot.classList.add(`${theme}-theme`);
+        if (theme === 'dark') {
+            toggleButton.checked = true;
+        } else {
+            toggleButton.checked = false;
+        }
+        document.documentElement.setAttribute('data-theme',theme);
+    }
+    
+    function initializeTheme() {
+        // Check local storage
+        let theme = localStorage.getItem('theme');
+        if (!theme) {
+            // If no theme in local storage, check the browser's preferred color scheme
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                theme = 'dark';
+            } else {
+                theme = 'light';
+            }
+        }
+        setTheme(theme);
+    }
+    
+    toggleButton.addEventListener('change', () => {
+        const theme = toggleButton.checked ? 'dark' : 'light';
+        setTheme(theme);
+        localStorage.setItem('theme', theme);
+    });
+    
+    initializeTheme();
+}
