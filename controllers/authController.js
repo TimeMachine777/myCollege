@@ -173,7 +173,7 @@ export const assignJWT = async (req, res, next) => {
     next();
 }
 
-export const forgotChangePassword = async (req, res) => {
+const forgotChangePassword = async (req, res) => {
     const { new_password } = req.body;
     try {
         const results = await pool.query('select password from users where username=$1', [req.session.forgotUserCredentials['username']]);

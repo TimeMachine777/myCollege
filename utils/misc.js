@@ -13,3 +13,10 @@ export const generateOTP = () => {
     }
     return val;
 }
+
+export const getLocalISODateTime = function (ISODate) {
+    const date = new Date(ISODate);
+    const timezoneOffset = date.getTimezoneOffset() * 60000; // Convert minutes to milliseconds
+    const localISODateTime = new Date(date - timezoneOffset).toISOString().slice(0, 19); //taking only till seconds and not milliseconds
+    return localISODateTime;
+};

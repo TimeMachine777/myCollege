@@ -45,7 +45,7 @@ export const validateRollNo =
         .trim()
         .notEmpty().withMessage('Roll No cannot be empty')
         .isLength({max: 20}).withMessage('Roll No max length should be 20 char.')
-        .matches(/^[a-zA-Z0-9\/]+$/).withMessage('Roll number contains invalid characters(only allowed: a-z,A-Z,0-9,\)');
+        .matches(/^[a-zA-Z0-9\/]+$/).withMessage('Roll number contains invalid characters(only allowed: a-z,A-Z,0-9,\\)');
 
 export const validateCollegeName = 
     body('college')

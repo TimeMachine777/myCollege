@@ -1,14 +1,15 @@
 import pool from "../config/db.js";
-import express from "express";
 import bcrypt from "bcrypt";
 import env from "dotenv";
 
 import { logger } from "../utils/errorLogger.js";
+import { getLocalISODateTime } from "../utils/misc.js";
+import { body, validationResult } from "express-validator";
 
 env.config();
 
 
-export const getAllSem = async (req, res) => {
+const getAllSem = async (req, res) => {
     let allSem = [];
     try {
         const result = await pool.query('(select sem from academics where uid=$1) union (select sem from events where uid=$1) order by sem', [req.user['uid']]);
@@ -25,7 +26,7 @@ export const getAllSem = async (req, res) => {
     return allSem;
 }
 
-export const getAllCourses = async (req, res, currSem) => {
+const getAllCourses = async (req, res, currSem) => {
     try {
         const results = await pool.query('select course_name,cid,professor,dept,credits from academics where uid=$1 and sem=$2 order by course_name asc', [req.user['uid'], currSem]);
         return results.rows;
@@ -37,7 +38,7 @@ export const getAllCourses = async (req, res, currSem) => {
     }
 }
 
-export const addCourse = async (req, res) => {
+const addCourse = async (req, res) => {
     const { course_name, cid, professor, dept, credits, sem } = req.body;
     // console.log(typeof(sem));
     try {
@@ -51,7 +52,7 @@ export const addCourse = async (req, res) => {
     }
 }
 
-export const updateCourse = async (req, res) => {
+const updateCourse = async (req, res) => {
     const { course_name, cid, professor, dept, credits, sem, prev_cid } = req.body;
     // console.log(req.body);
     // console.log(typeof(req.user['uid']));
@@ -79,7 +80,7 @@ export const updateCourse = async (req, res) => {
     }
 }
 
-export const deleteCourse = async (req, res) => {
+const deleteCourse = async (req, res) => {
     const { cid } = req.body;
     try {
         await pool.query('delete from academics where uid=$1 and cid=$2', [req.user['uid'], cid]);
@@ -93,7 +94,7 @@ export const deleteCourse = async (req, res) => {
     }
 }
 
-export const getAllCoursesForAttendance = async (req, res, currSem) => {
+const getAllCoursesForAttendance = async (req, res, currSem) => {
     try {
         const results = await pool.query('select cid,course_name,professor,credits,present,total_classes from academics where uid=$1 and sem=$2 order by course_name asc', [req.user['uid'], currSem]);
         return results.rows;
@@ -105,7 +106,7 @@ export const getAllCoursesForAttendance = async (req, res, currSem) => {
     }
 };
 
-export const getAttendanceDetails = async (req, res) => {
+const getAttendanceDetails = async (req, res) => {
     const uid = req.user['uid'];
     const cid = req.body['cid'];
     // console.log([uid,cid]);
@@ -123,7 +124,7 @@ export const getAttendanceDetails = async (req, res) => {
     }
 };
 
-export const addAttendance = async (req, res) => {
+const addAttendance = async (req, res) => {
     const { cid, course_date, status } = req.body;
 
     const client = await pool.connect();
@@ -149,7 +150,7 @@ export const addAttendance = async (req, res) => {
     }
 }
 
-export const updateAttendance = async (req, res) => {
+const updateAttendance = async (req, res) => {
     const { aid, cid, course_date, status, prev_status } = req.body;
 
     //taking a client (because next is a multioperation transaction so we need a single client for it
@@ -179,7 +180,7 @@ export const updateAttendance = async (req, res) => {
     }
 }
 
-export const deleteAttendance = async (req, res) => {
+const deleteAttendance = async (req, res) => {
     const { aid, cid, prev_status } = req.body;
     const client = await pool.connect(); //taking a client for multi op transaction
     try {
@@ -203,7 +204,7 @@ export const deleteAttendance = async (req, res) => {
     }
 };
 
-export const getAllMarks = async (req, res, currSem) => {
+const getAllMarks = async (req, res, currSem) => {
     try {
         const marksResult = await pool.query('select cid,course_name,quiz1,mid_sem,quiz2,end_sem,internal,total_marks from academics where uid=$1 and sem=$2 order by cid', [req.user['uid'], currSem]);
         return marksResult.rows;
@@ -215,7 +216,7 @@ export const getAllMarks = async (req, res, currSem) => {
     }
 };
 
-export const updateMarks = async (req, res) => {
+const updateMarks = async (req, res) => {
     let quiz1 = Number(req.body['quiz1'] || 0);
     let quiz2 = Number(req.body['quiz2'] || 0);
     let mid_sem = Number(req.body['mid_sem'] || 0);
@@ -242,7 +243,7 @@ export const updateMarks = async (req, res) => {
     }
 };
 
-export const getAllEvents = async (req, res, currSem) => {
+const getAllEvents = async (req, res, currSem) => {
     try {
         const results = await pool.query('select eid,type,event_name,description,cid,issue_date,deadline,completion_date,status from events where uid=$1 and sem=$2 order by deadline asc', [req.user['uid'], currSem]);
         return results.rows;
@@ -254,7 +255,7 @@ export const getAllEvents = async (req, res, currSem) => {
     }
 };
 
-export const getEventAllowedCID = async (req, res) => {
+const getEventAllowedCID = async (req, res) => {
     const { sem } = req.body;
     const uid = req.user['uid'];
     try {
@@ -270,7 +271,7 @@ export const getEventAllowedCID = async (req, res) => {
     }
 };
 
-export const addEvent = async (req, res) => {
+const addEvent = async (req, res) => {
     let { event_name, type, sem, description, issue_date, deadline, completion_date, cid } = req.body;
     const uid = req.user['uid'];
     let status = 'pending';
@@ -290,7 +291,7 @@ export const addEvent = async (req, res) => {
     }
 };
 
-export const getEventDetails = async (req, res) => {
+const getEventDetails = async (req, res) => {
     const { eid } = req.body;
     try {
         const results = await pool.query('select * from events where eid=$1', [eid]);
@@ -314,7 +315,7 @@ export const getEventDetails = async (req, res) => {
     }
 }
 
-export const updateEvent = async (req, res) => {
+const updateEvent = async (req, res) => {
     let { eid, event_name, type, sem, description, issue_date, deadline, completion_date, cid } = req.body;
     let status = 'pending';
     if (completion_date) status = 'completed';
@@ -333,7 +334,7 @@ export const updateEvent = async (req, res) => {
     }
 };
 
-export const deleteEvent = async (req, res) => {
+const deleteEvent = async (req, res) => {
     let { eid } = req.body;
     try {
         await pool.query('delete from events where eid=$1', [eid]);
@@ -346,7 +347,7 @@ export const deleteEvent = async (req, res) => {
     }
 };
 
-export const getUserDetails= async (req,res) => {
+const getUserDetails= async (req,res) => {
     try{
         const results= await pool.query('select * from users where uid=$1',[req.user['uid']]);
         return results.rows[0];
@@ -358,7 +359,7 @@ export const getUserDetails= async (req,res) => {
     }
 }
 
-export const changePassword = async (req, res) => {
+const changePassword = async (req, res) => {
     const { curr_password, new_password } = req.body;
     try {
         const results = await pool.query('select password from users where uid=$1', [req.user['uid']]);
@@ -392,7 +393,7 @@ export const changePassword = async (req, res) => {
     }
 };
 
-export const changeUserDetails = async (req,res) => {
+const changeUserDetails = async (req,res) => {
     const {name,roll_no,college,current_sem} = req.body;
     try{
         await pool.query('update users set name=$1,roll_no=$2,college=$3,current_sem=$4 where uid=$5',[name,roll_no,college,current_sem,req.user['uid']]);
@@ -405,9 +406,446 @@ export const changeUserDetails = async (req,res) => {
     }
 }
 
-export const getLocalISODateTime = function (ISODate) {
-    const date = new Date(ISODate);
-    const timezoneOffset = date.getTimezoneOffset() * 60000; // Convert minutes to milliseconds
-    const localISODateTime = new Date(date - timezoneOffset).toISOString().slice(0, 19); //taking only till seconds and not milliseconds
-    return localISODateTime;
-};
+// Main route handlers --------------------------------------
+
+export const get_dashboard = async (req, res) => {
+    let currSem = (req.session.semester) || req.user['current_sem'];
+    const allSem = await getAllSem(req, res);
+    if (allSem.length == 0) allSem.push(currSem);
+    else if(!allSem.includes(currSem)) currSem=allSem[allSem.length-1];
+    // console.log(allSem);
+    const attendanceData= await getAllCoursesForAttendance(req,res,currSem);
+    const allEvents= await getAllEvents(req,res,currSem);
+
+    const upcomingEvents=[],lateEvents=[];
+    for(let i=0;i<allEvents.length;i++) { //formatting dateTime so that it can be displayed
+        let localISO_completion_date= null;
+        if(allEvents[i].completion_date) localISO_completion_date=getLocalISODateTime(allEvents[i].completion_date);
+        allEvents[i].completion_date=localISO_completion_date;
+    }
+    for(let i of allEvents) {
+        const deadline=new Date(i.deadline),currDate=new Date();
+        if(i.completion_date) ;
+        else if (currDate>deadline) lateEvents.push(i);
+        else upcomingEvents.push(i);
+    }
+
+    const errorMsg= req.session['errorMessage'];
+    if(errorMsg) delete req.session['errorMessage'];
+
+    const locals = {
+        currSem: currSem,
+        allSem: allSem,
+        username: req.user['username'],
+        attendance: attendanceData,
+        upcomingEvents: upcomingEvents,
+        lateEvents: lateEvents,
+        errorMessage: errorMsg,
+    };
+    res.render('dashboard.ejs', locals);
+}
+
+export const post_updateSessionSem = async (req, res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/updateSessionSem : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    const { newSem } = req.body;
+
+    // console.log(typeof(newSem));
+    req.session['semester'] = newSem;
+    await req.session.save();
+    console.log("Session sem updated successfully!");
+    res.status(200).json({ success: true });
+}
+
+export const get_courses = async (req, res) => {
+    let currSem = (req.session.semester) || req.user['current_sem'];
+    const allSem = await getAllSem(req, res);
+    if (allSem.length == 0) allSem.push(currSem);
+    else if(!allSem.includes(currSem)) currSem=allSem[allSem.length-1];
+    // console.log(allSem);
+
+    /* let courses= [
+        {course_name:'DAA',cid:'IT342',professor:'AK Mishra',dept:'CSE',credits:3},
+        {course_name:'COA',cid:'IT311',professor:'PQR',dept:'CSE',credits:4},
+        {course_name:'NM',cid:'MA400',professor:'ABV',dept:'MA',credits:2}
+    ]; */
+    let courses = await getAllCourses(req, res, currSem);
+
+    const errorMsg= req.session['errorMessage'];
+    if(errorMsg) delete req.session['errorMessage'];
+
+    const locals = {
+        currSem: currSem,
+        allSem: allSem,
+        username: req.user['username'],
+        courses: courses,
+        errorMessage: errorMsg,
+    };
+    res.render('courses.ejs', locals);
+}
+
+export const post_courses = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/courses (post) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    // let currSem = (req.session.semester) || req.user['current_sem'];
+    await addCourse(req,res);
+}
+
+export const put_courses = async (req, res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/courses (put) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    // console.log(req.body);
+    // res.json({success:true});
+    await updateCourse(req,res);
+}
+
+export const delete_courses = async (req, res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/courses (delete) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    // console.log(req.body);
+    // res.json({ success: true });
+    await deleteCourse(req,res);
+}
+
+export const get_attendance = async (req,res) => {
+    let currSem = (req.session.semester) || req.user['current_sem'];
+    const allSem = await getAllSem(req, res);
+    if (allSem.length == 0) allSem.push(currSem);
+    else if(!allSem.includes(currSem)) currSem=allSem[allSem.length-1];
+
+    const courses= await getAllCoursesForAttendance(req,res,currSem);
+
+    const errorMsg= req.session['errorMessage'];
+    if(errorMsg) delete req.session['errorMessage'];
+
+    const locals = {
+        currSem: currSem,
+        allSem: allSem,
+        username: req.user['username'],
+        courses: courses,
+        errorMessage: errorMsg,
+    };
+    res.render('attendance.ejs', locals);    
+}
+
+export const post_attendance = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/attendance (post) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    await getAttendanceDetails(req,res);
+}
+
+export const post_attendanceAdd = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/attendance/add (post) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    await addAttendance(req,res);
+}
+
+export const put_attendance = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/attendance (put) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    await updateAttendance(req,res);
+}
+
+export const delete_attendance = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/attendance (delete) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    await deleteAttendance(req,res);
+}
+
+export const get_marks = async (req,res) => {
+    let currSem = (req.session.semester) || req.user['current_sem'];
+    const allSem = await getAllSem(req, res);
+    if (allSem.length == 0) allSem.push(currSem);
+    else if(!allSem.includes(currSem)) currSem=allSem[allSem.length-1];
+
+    const allMarks= await getAllMarks(req,res,currSem);
+
+    const errorMsg= req.session['errorMessage'];
+    if(errorMsg) delete req.session['errorMessage'];
+
+    const locals = {
+        currSem: currSem,
+        allSem: allSem,
+        username: req.user['username'],
+        marks: allMarks,
+        errorMessage: errorMsg,
+    };
+    res.render('marks.ejs', locals);
+}
+
+export const put_marks = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/marks (put) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    await updateMarks(req,res);
+}
+
+export const get_events = async (req,res) => {
+    let currSem = (req.session.semester) || req.user['current_sem'];
+    const allSem = await getAllSem(req, res);
+    if (allSem.length == 0) allSem.push(currSem);
+    else if(!allSem.includes(currSem)) currSem=allSem[allSem.length-1];
+
+    const allEvents=await getAllEvents(req,res,currSem);
+    // console.log(allEvents);
+    const upcomingEvents=[],lateEvents=[],completedEvents=[];
+    for(let i=0;i<allEvents.length;i++) { //formatting dateTime so that it can be displayed
+        /* const localISO_issue_date= getLocalISODateTime(allEvents[i].issue_date);
+        const localISO_deadline= getLocalISODateTime(allEvents[i].deadline); */
+        let localISO_completion_date= null;
+        if(allEvents[i].completion_date) localISO_completion_date=getLocalISODateTime(allEvents[i].completion_date);
+
+        /* allEvents[i].issue_date=localISO_issue_date;
+        allEvents[i].deadline=localISO_deadline; */
+        allEvents[i].completion_date=localISO_completion_date;
+    }
+    // console.log(allEvents);
+    for(let i of allEvents) {
+        const issue_date=new Date(i.issue_date),deadline=new Date(i.deadline),currDate=new Date();
+        let completion_date=null;
+        if(i.completion_date) completion_date=new Date(i.completion_date);
+        if(completion_date) completedEvents.push(i);
+        else if (currDate>deadline) lateEvents.push(i);
+        else upcomingEvents.push(i);
+    }
+    /* console.log(completedEvents);
+    console.log(lateEvents);
+    console.log(upcomingEvents); */
+
+    const errorMsg= req.session['errorMessage'];
+    if(errorMsg) delete req.session['errorMessage'];
+
+    const locals = {
+        currSem: currSem,
+        allSem: allSem,
+        username: req.user['username'],
+        lateEvents: lateEvents,
+        upcomingEvents: upcomingEvents,
+        completedEvents: completedEvents,
+        errorMessage: errorMsg,
+    };
+    res.render('events.ejs', locals);
+}
+
+export const post_eventsGetCID = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/events/getCID (post) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    // console.log("hello");
+    await getEventAllowedCID(req,res);
+}
+
+export const post_events = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/events (post) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    await addEvent(req,res);
+}
+
+export const post_eventsGetEvent = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/events/getEvent (post) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    await getEventDetails(req,res);
+}
+
+export const put_events = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/events (put) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    await updateEvent(req,res);
+}
+
+export const delete_events = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/events (delete) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    await deleteEvent(req,res);
+}
+
+export const get_profile = async (req,res) => {
+    let currSem = (req.session.semester) || req.user['current_sem'];
+    const allSem = await getAllSem(req, res);
+    if (allSem.length == 0) allSem.push(currSem);
+    else if(!allSem.includes(currSem)) currSem=allSem[allSem.length-1];
+
+    const details=await getUserDetails(req,res);
+
+    const errorMsg= req.session['errorMessage'];
+    if(errorMsg) delete req.session['errorMessage'];
+
+    const locals = {
+        currSem: currSem,
+        allSem: allSem,
+        username: req.user['username'],
+        details: details,
+        errorMessage: errorMsg,
+    };
+    res.render('profile.ejs', locals);
+}
+
+export const post_changePassword = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/changePassword (post) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+    
+    await changePassword(req,res);
+}
+
+export const post_changeUserDetails = async (req,res) => {
+    // Handle Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg).join(', ');
+        console.log(`Validation failed in /user/changeUserDetails (post) : ${errorMessages}`);
+        // await logger(req, `Validation failed: ${errorMessages}`); //because alert will be given by client side js
+        return res.status(400).json({ 
+            success: false,
+            errors: errorMessages,
+        });
+    }
+
+    await changeUserDetails(req,res);
+}
