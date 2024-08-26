@@ -263,6 +263,7 @@ router.get('/register/verifyEmail', async (req, res) => {
         tries: maxTries - req.session.registerOTP['failedAttempts'],
         remainingTime: remainingTime,
         username: req.session.userCredentials['username'],
+        page: 'Register OTP',
         errorMessage: errorMsg,
     };
     res.render('registerOTP.ejs', locals);
@@ -348,6 +349,7 @@ router.get('/login/forgotPassword/username', async (req, res) => {
     const errorMsg = req.session['errorMessage'];
     if (errorMsg) delete req.session['errorMessage'];
     const locals = {
+        page: 'Forgot Password Username',
         errorMessage: errorMsg,
     };
     res.render('forgotPassUsername.ejs', locals);
@@ -384,6 +386,7 @@ router.get('/login/forgotPassword/otp', async (req, res) => {
         tries: maxTries - req.session.forgotOTP['failedAttempts'],
         remainingTime: remainingTime,
         username: req.session.forgotUserCredentials['username'],
+        page: 'Forgot Password OTP',
         errorMessage: errorMsg,
     };
     res.render('forgotPassOTP.ejs', locals);
@@ -469,6 +472,7 @@ router.get('/login/forgotPassword/newPassword', async (req, res) => {
     const errorMsg = req.session['errorMessage'];
     if (errorMsg) delete req.session['errorMessage'];
     const locals = {
+        page: 'Forgot Password New Password',
         username: req.session.forgotUserCredentials['username'],
         errorMessage: errorMsg,
     };

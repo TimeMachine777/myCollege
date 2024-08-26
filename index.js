@@ -6,7 +6,8 @@ import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 
-import { isAuthorizedForCompleteProfile, isAuthenticated, isAlreadyLoggedIn, isAuthorizedForRegisterOTP, isAuthorizedForForgotOTP, isAuthorizedForForgotNewPassword } from "./controllers/authController.js";
+import { isAuthorizedForCompleteProfile, isAuthenticated, isAlreadyLoggedIn, isAuthorizedForRegisterOTP, isAuthorizedForForgotOTP, isAuthorizedForForgotNewPassword } from "./middlewares.js";
+import { jwtAuth } from "./middlewares.js";
 import authRoutes from "./routes/authRoutes.js";
 import rootRoutes from "./routes/rootRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -44,35 +45,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //jwt auth
-app.use(async (req,res,next) => {
-    // console.log("Inside jwt auth middleware in index.js");
-    if(!req.user) {
-        let token;
-        // console.log(req.cookies);
-        if(req.cookies) token=req.cookies['jwt'];
-        else if(req.headers['authorization']) token=req.headers['authorization'].split(' ')[1];
-        // console.log("token is:"+token);
-        if(token) {
-            const decoded=jwt.verify(token,process.env.JWT_SECRET);
-            delete decoded['iat'];
-            delete decoded['exp'];
-            await new Promise((resolve,reject) => {
-                req.login(decoded, (error) => {
-                    if(error) {
-                        console.log(error);
-                        reject(error.message);
-                    }
-                    else {
-                        console.log("User logged in using jwt.");
-                        resolve();
-                    }
-                });
-            });
-        }
-    }
-    // console.log(req.session);
-    next();
-});
+app.use(jwtAuth);
 
 //others
 app.use(['/auth/login','/auth/register','/auth/google'],isAlreadyLoggedIn);
