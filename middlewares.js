@@ -1,39 +1,38 @@
-import bcrypt from "bcrypt";
-import express from "express";
-import env from "dotenv";
-import passport from "passport";
-import session from "express-session";
-import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 
 import { logger } from "./utils/errorLogger.js";
 
 // jwt auth 
-export const jwtAuth = async (req,res,next) => {
+export const jwtAuth = async (req, res, next) => {
     // console.log("Inside jwt auth middleware in index.js");
-    if(!req.user) {
+    if (!req.user) {
         let token;
         // console.log(req.cookies);
-        if(req.cookies) token=req.cookies['jwt'];
-        else if(req.headers['authorization']) token=req.headers['authorization'].split(' ')[1];
+        if (req.cookies) token = req.cookies['jwt'];
+        else if (req.headers['authorization']) token = req.headers['authorization'].split(' ')[1];
         // console.log("token is:"+token);
-        if(token) {
-            const decoded=jwt.verify(token,process.env.JWT_SECRET);
-            delete decoded['iat'];
-            delete decoded['exp'];
-            await new Promise((resolve,reject) => {
-                req.login(decoded, (error) => {
-                    if(error) {
-                        console.log(error);
-                        reject(error.message);
-                    }
-                    else {
-                        console.log("User logged in using jwt.");
-                        resolve();
-                    }
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                delete decoded['iat'];
+                delete decoded['exp'];
+                await new Promise((resolve, reject) => {
+                    req.login(decoded, (error) => {
+                        if (error) {
+                            console.log(error);
+                            reject(error.message);
+                        }
+                        else {
+                            console.log("User logged in using jwt.");
+                            resolve();
+                        }
+                    });
                 });
-            });
+            }
+            catch (error) {
+                console.log("Error in jwt auth middleware. Error is:")
+                console.log(error);
+            }
         }
     }
     // console.log(req.session);
