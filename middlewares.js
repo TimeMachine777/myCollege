@@ -1,6 +1,9 @@
 import jwt from "jsonwebtoken";
+import env from "dotenv";
 
 import { logger } from "./utils/errorLogger.js";
+
+env.config();
 
 // jwt auth 
 export const jwtAuth = async (req, res, next) => {

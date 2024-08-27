@@ -3,11 +3,10 @@ import env from "dotenv";
 import passport from "passport";
 import session from "express-session";
 import bodyParser from "body-parser";
-import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 
-import { isAuthorizedForCompleteProfile, isAuthenticated, isAlreadyLoggedIn, isAuthorizedForRegisterOTP, isAuthorizedForForgotOTP, isAuthorizedForForgotNewPassword } from "./middlewares.js";
-import { jwtAuth } from "./middlewares.js";
+
+import { isAuthorizedForCompleteProfile, isAuthenticated, isAlreadyLoggedIn, isAuthorizedForRegisterOTP, isAuthorizedForForgotOTP, isAuthorizedForForgotNewPassword, jwtAuth } from "./middlewares.js";
 import authRoutes from "./routes/authRoutes.js";
 import rootRoutes from "./routes/rootRoutes.js";
 import userRoutes from "./routes/userRoutes.js";

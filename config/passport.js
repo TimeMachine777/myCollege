@@ -3,6 +3,9 @@ import { Strategy as LocalStrategy } from "passport-local";
 import {Strategy as GoogleStrategy} from "passport-google-oauth2";
 import pool from "./db.js";
 import bcrypt from "bcrypt";
+import env from "dotenv";
+
+env.config();
 
 const localStrategy=new LocalStrategy(async function verify (username, password, done) {
     try{
