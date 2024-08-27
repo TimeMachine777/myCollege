@@ -23,7 +23,7 @@ router.post('/attendance', [validateCID], post_attendance);
 
 router.post('/attendance/add', [validateCID, validateCourseDate, validateStatus], post_attendanceAdd);
 
-router.put('/attendance', [validateAID,validateCID, validateCourseDate, validateStatus, validatePrevStatus], put_attendance);
+router.put('/attendance', [validateAID, validateCID, validateCourseDate, validateStatus, validatePrevStatus], put_attendance);
 
 router.delete('/attendance', [validateAID, validateCID, validatePrevStatus], delete_attendance);
 
@@ -35,7 +35,7 @@ router.get('/events', get_events);
 
 router.post('/events/getCID', [validateSem], post_eventsGetCID);
 
-router.post('/events', [validateEventName, validateEventType, validateSem,validateDescription,validateIssueDate, validateDeadline, validateCompletionDate,validateEventCID], post_events);
+router.post('/events', [validateEventName, validateEventType, validateSem, validateDescription, validateIssueDate, validateDeadline, validateCompletionDate, validateEventCID], post_events);
 
 
 router.post('/events/getEvent', [validateEID], post_eventsGetEvent);

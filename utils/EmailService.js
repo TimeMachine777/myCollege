@@ -31,16 +31,16 @@ const transporter = nodemailer.createTransport({
 }); */
 
 export const sendEmail = async (options) => {
-    try{
+    try {
         const info = await transporter.sendMail(options);
         if (info.rejected.length > 0) {
-            return {status: false};
+            return { status: false };
         }
-        return {status: true};
+        return { status: true };
     }
-    catch(error) {
+    catch (error) {
         // console.log(error);
-        return {status: false,error: error};
+        return { status: false, error: error };
     }
 };
 

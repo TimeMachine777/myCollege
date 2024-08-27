@@ -33,20 +33,20 @@ if ($navbarBurgers.length > 0) {
 // Theme toggle button code ------------------------------------------------
 const toggleButton = document.getElementById('toggle');
 const themeToggleLabel = document.getElementById('theme-toggle-button');
-const documentRoot= document.documentElement; //html element
+const documentRoot = document.documentElement; //html element
 
-if(toggleButton) {
+if (toggleButton) {
     function setTheme(theme) {
-        documentRoot.classList.remove('light-theme','dark-theme');
+        documentRoot.classList.remove('light-theme', 'dark-theme');
         documentRoot.classList.add(`${theme}-theme`);
         if (theme === 'dark') {
             toggleButton.checked = true;
         } else {
             toggleButton.checked = false;
         }
-        document.documentElement.setAttribute('data-theme',theme);
+        document.documentElement.setAttribute('data-theme', theme);
     }
-    
+
     function initializeTheme() {
         // Check local storage
         let theme = localStorage.getItem('theme');
@@ -60,12 +60,12 @@ if(toggleButton) {
         }
         setTheme(theme);
     }
-    
+
     toggleButton.addEventListener('change', () => {
         const theme = toggleButton.checked ? 'dark' : 'light';
         setTheme(theme);
         localStorage.setItem('theme', theme);
     });
-    
+
     initializeTheme();
 }

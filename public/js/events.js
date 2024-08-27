@@ -186,15 +186,15 @@ async function displayEventDetails(details) {
 
     // console.log("ALL OK part2 in displayEventDetails..."); //debug
 
-    editEventForm.querySelector('input[name="event_name"]').setAttribute('value',details['event_name']);
+    editEventForm.querySelector('input[name="event_name"]').setAttribute('value', details['event_name']);
     editEventForm.querySelector('select[name="type"] option[value="' + details['type'] + '"]').setAttribute('selected', true);
-    editEventForm.querySelector('input[name="sem"]').setAttribute('value',details['sem']);
-    editEventForm.querySelector('textarea[name="description"]').value=details['description'];
-    editEventForm.querySelector('input[name="issue_date"]').setAttribute('value',localISO_issue_date);
-    editEventForm.querySelector('input[name="deadline"]').setAttribute('value',localISO_deadline);
-    editEventForm.querySelector('input[name="deadline"]').setAttribute('min',localISO_issue_date);
-    editEventForm.querySelector('input[name="completion_date"]').setAttribute('value',localISO_completion_date);
-    editEventForm.querySelector('input[name="completion_date"]').setAttribute('min',localISO_issue_date);
+    editEventForm.querySelector('input[name="sem"]').setAttribute('value', details['sem']);
+    editEventForm.querySelector('textarea[name="description"]').value = details['description'];
+    editEventForm.querySelector('input[name="issue_date"]').setAttribute('value', localISO_issue_date);
+    editEventForm.querySelector('input[name="deadline"]').setAttribute('value', localISO_deadline);
+    editEventForm.querySelector('input[name="deadline"]').setAttribute('min', localISO_issue_date);
+    editEventForm.querySelector('input[name="completion_date"]').setAttribute('value', localISO_completion_date);
+    editEventForm.querySelector('input[name="completion_date"]').setAttribute('min', localISO_issue_date);
 
     // console.log("ALL OK part3 in displayEventDetails..."); //debug
 

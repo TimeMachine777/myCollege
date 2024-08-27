@@ -10,7 +10,7 @@ function displayAttendanceTable(data, courseID) {
     tableBody.innerHTML = null;
     for (let i = 0; i < data.length; i++) {
         const entry = data[i];
-        const attendanceEditForm= document.createElement('form');
+        const attendanceEditForm = document.createElement('form');
         const row = document.createElement('tr');
 
         // console.log(entry.course_date);
@@ -24,12 +24,12 @@ function displayAttendanceTable(data, courseID) {
         // console.log(localISOTime);
         dateInput.step = 1;
         dateInput.value = localISOTime;
-        dateInput.required=true;
+        dateInput.required = true;
 
         // setting max input date time
         const now = new Date();
         const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-        const maxDateTime = new Date(endOfDay-timezoneOffset).toISOString().slice(0, 19);
+        const maxDateTime = new Date(endOfDay - timezoneOffset).toISOString().slice(0, 19);
         dateInput.max = maxDateTime;
 
         dateInput.disabled = true;
@@ -48,7 +48,7 @@ function displayAttendanceTable(data, courseID) {
         const statusCell = document.createElement('td');
         const statusSelect = document.createElement('select');
         statusSelect.disabled = true;
-        statusSelect.required=true;
+        statusSelect.required = true;
         statusSelect.classList.add('status-select');
 
         const optionP = document.createElement('option');
@@ -93,8 +93,8 @@ function displayAttendanceTable(data, courseID) {
         deleteButton.addEventListener('click', async () => {
             // console.log('Delete clicked for date:', entry.course_date);
             if (confirm("Are you sure you want to delete this?")) {
-                try{
-                    const data= await fetchData('/user/attendance', {
+                try {
+                    const data = await fetchData('/user/attendance', {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
@@ -110,11 +110,11 @@ function displayAttendanceTable(data, courseID) {
                         window.location.href = '/user/attendance';
                     }
                     else {
-                        if(data['errors']) alert(data['errors']);
+                        if (data['errors']) alert(data['errors']);
                         else alert("An error occured while deleting the attendance!");
                     }
                 }
-                catch(error) {
+                catch (error) {
                     if (error == 'auth') window.location.href = '/auth/login';
                 }
             }
@@ -130,7 +130,7 @@ function displayAttendanceTable(data, courseID) {
 
         cancelEditButton.addEventListener('click', () => {
             dateInput.value = localISOTime;
-            statusSelect.value= entry.status;
+            statusSelect.value = entry.status;
             dateInput.disabled = true;
             statusSelect.disabled = true;
             editButton.style.display = 'inline-flex';
@@ -146,38 +146,38 @@ function displayAttendanceTable(data, courseID) {
                     return;
                 } */
 
-                const dateToSend = new Date(dateInput.value).toISOString();
-                // console.log(dateInput.value);
-                // console.log(dateToSend);
-    
-                const formData = {
-                    aid: entry.aid,
-                    cid: courseID,
-                    course_date: dateToSend,
-                    status: statusSelect.value,
-                    prev_status: entry.status
-                };
-    
-                try{
-                    const data= await fetchData('/user/attendance', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(formData)
-                    });
-                    if (data['success']) {
-                        console.log("Attendance updated!");
-                        window.location.href = '/user/attendance';
-                    }
-                    else {
-                        if(data['errors']) alert(data['errors']);
-                        else alert("An error occured while updating the attendance!");
-                    }
+            const dateToSend = new Date(dateInput.value).toISOString();
+            // console.log(dateInput.value);
+            // console.log(dateToSend);
+
+            const formData = {
+                aid: entry.aid,
+                cid: courseID,
+                course_date: dateToSend,
+                status: statusSelect.value,
+                prev_status: entry.status
+            };
+
+            try {
+                const data = await fetchData('/user/attendance', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                if (data['success']) {
+                    console.log("Attendance updated!");
+                    window.location.href = '/user/attendance';
                 }
-                catch(error) {
-                    if (error == 'auth') window.location.href = '/auth/login';
+                else {
+                    if (data['errors']) alert(data['errors']);
+                    else alert("An error occured while updating the attendance!");
                 }
+            }
+            catch (error) {
+                if (error == 'auth') window.location.href = '/auth/login';
+            }
             /* }
             else{
                 alert('Date cannot be empty!');
@@ -207,8 +207,8 @@ for (let i = 0; i < attendanceDetailBtns.length; i++) {
         const courseAttendance = document.querySelector('.card[course-id="' + courseID + '"] .course-attendance').innerHTML;
         const valToSend = JSON.stringify({ cid: courseID });
 
-        try{
-            const data= await fetchData('/user/attendance', {
+        try {
+            const data = await fetchData('/user/attendance', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -227,11 +227,11 @@ for (let i = 0; i < attendanceDetailBtns.length; i++) {
                 window.location.href = '#attendance-details-card';
             }
             else {
-                if(data['errors']) alert(data['errors']);
+                if (data['errors']) alert(data['errors']);
                 else alert("An error occured while retrieving the attendance data!");
             }
         }
-        catch(error) {
+        catch (error) {
             if (error == 'auth') window.location.href = '/auth/login';
         }
     });
@@ -242,7 +242,7 @@ let addBtn = document.querySelector('#add-attendance-btn');
 let cancelAddBtn = document.querySelector('#add-attendance-cancel-btn');
 const addForm = document.querySelector('#add-attendance-card form');
 const addFormDiv = document.querySelector('#add-attendance-card .card-content');
-const addCardFooter=document.querySelector('#add-attendance-card .card-footer');
+const addCardFooter = document.querySelector('#add-attendance-card .card-footer');
 
 addBtn.addEventListener('click', async (event) => {
     addFormDiv.classList.remove('hide');
@@ -262,8 +262,8 @@ addForm.addEventListener('submit', async (event) => {
         status: statusSelect.value
     };
 
-    try{
-        const data= await fetchData('/user/attendance/add', {
+    try {
+        const data = await fetchData('/user/attendance/add', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -275,11 +275,11 @@ addForm.addEventListener('submit', async (event) => {
             window.location.href = '/user/attendance';
         }
         else {
-            if(data['errors']) alert(data['errors']);
+            if (data['errors']) alert(data['errors']);
             else alert("An error occured while adding the attendance!");
         }
     }
-    catch(error) {
+    catch (error) {
         if (error == 'auth') window.location.href = '/auth/login';
     }
 });

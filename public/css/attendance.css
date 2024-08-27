@@ -1,4 +1,3 @@
-
 /* attendance specific code----------- */
 .icon {
     cursor: pointer;
@@ -25,7 +24,7 @@
     justify-content: space-around;
 }
 
-.is-color-red{
+.is-color-red {
     color: red;
 }
 

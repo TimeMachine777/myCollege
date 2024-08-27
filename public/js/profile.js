@@ -54,16 +54,16 @@ document.querySelector('#change-password-card input[name="new_password"]').addEv
 
 
 // change password Form---------------
-const changePasswordBtn=document.querySelector('#change-password-btn');
-const changePasswordSubmitBtn=document.querySelector('#change-password-submit-btn');
-const changePasswordCancelBtn=document.querySelector('#change-password-cancel-btn');
-const changePasswordForm=document.querySelector('#change-password-card form');
-const changePasswordFormDiv=document.querySelector('#change-password-card .card-content');
+const changePasswordBtn = document.querySelector('#change-password-btn');
+const changePasswordSubmitBtn = document.querySelector('#change-password-submit-btn');
+const changePasswordCancelBtn = document.querySelector('#change-password-cancel-btn');
+const changePasswordForm = document.querySelector('#change-password-card form');
+const changePasswordFormDiv = document.querySelector('#change-password-card .card-content');
 
 changePasswordBtn.addEventListener('click', (event) => {
     changePasswordFormDiv.classList.remove('hide');
     changePasswordBtn.classList.add('hide');
-    window.location.href='#change-password-card';
+    window.location.href = '#change-password-card';
 });
 
 changePasswordCancelBtn.addEventListener('click', (event) => {
@@ -74,14 +74,14 @@ changePasswordCancelBtn.addEventListener('click', (event) => {
 
 changePasswordForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const curr_password= changePasswordForm.querySelector('input[name="curr_password"]').value;
-    const new_password= changePasswordForm.querySelector('input[name="new_password"]').value;
-    const repeat_new_password= changePasswordForm.querySelector('input[name="repeat_new_password"]').value;
+    const curr_password = changePasswordForm.querySelector('input[name="curr_password"]').value;
+    const new_password = changePasswordForm.querySelector('input[name="new_password"]').value;
+    const repeat_new_password = changePasswordForm.querySelector('input[name="repeat_new_password"]').value;
 
-    if(new_password!=repeat_new_password) {
+    if (new_password != repeat_new_password) {
         return alert('New password and repeat new password are not same!');
     }
-    const dataToSend= {
+    const dataToSend = {
         curr_password: curr_password,
         new_password: new_password,
         repeat_new_password: repeat_new_password,
@@ -111,16 +111,16 @@ changePasswordForm.addEventListener('submit', async (event) => {
 
 
 //Change Other details --------------------
-const changeDetailsBtn=document.querySelector('#change-user-details-btn');
-const changeDetailsSubmitBtn=document.querySelector('#change-user-details-submit-btn');
-const changeDetailsCancelBtn=document.querySelector('#change-user-details-cancel-btn');
-const changeDetailsForm=document.querySelector('#change-user-details-card form');
-const changeDetailsFormDiv=document.querySelector('#change-user-details-card .card-content');
+const changeDetailsBtn = document.querySelector('#change-user-details-btn');
+const changeDetailsSubmitBtn = document.querySelector('#change-user-details-submit-btn');
+const changeDetailsCancelBtn = document.querySelector('#change-user-details-cancel-btn');
+const changeDetailsForm = document.querySelector('#change-user-details-card form');
+const changeDetailsFormDiv = document.querySelector('#change-user-details-card .card-content');
 
 changeDetailsBtn.addEventListener('click', (event) => {
     changeDetailsFormDiv.classList.remove('hide');
     changeDetailsBtn.classList.add('hide');
-    window.location.href='#change-user-details-card';
+    window.location.href = '#change-user-details-card';
 });
 
 changeDetailsCancelBtn.addEventListener('click', (event) => {
@@ -131,12 +131,12 @@ changeDetailsCancelBtn.addEventListener('click', (event) => {
 
 changeDetailsForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const name= changeDetailsForm.querySelector('input[name="name"]').value;
-    const roll_no= changeDetailsForm.querySelector('input[name="roll_no"]').value;
-    const college= changeDetailsForm.querySelector('input[name="college"]').value;
-    const current_sem= changeDetailsForm.querySelector('input[name="current_sem"]').value;
+    const name = changeDetailsForm.querySelector('input[name="name"]').value;
+    const roll_no = changeDetailsForm.querySelector('input[name="roll_no"]').value;
+    const college = changeDetailsForm.querySelector('input[name="college"]').value;
+    const current_sem = changeDetailsForm.querySelector('input[name="current_sem"]').value;
 
-    const dataToSend= {
+    const dataToSend = {
         name: name,
         roll_no: roll_no,
         college: college,

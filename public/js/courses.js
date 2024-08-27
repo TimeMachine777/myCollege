@@ -108,7 +108,7 @@ const courseAddFormDiv = document.querySelector('#add-course-card .card-content'
 courseAddBtn.addEventListener('click', async (event) => {
     courseAddBtn.classList.add('hide');
     courseAddFormDiv.classList.remove('hide');
-    window.location.href='#add-course-card';
+    window.location.href = '#add-course-card';
 });
 
 cancelAddBtn.addEventListener('click', (event) => {

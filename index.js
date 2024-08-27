@@ -16,14 +16,14 @@ import './config/passport.js';
 //---------------------import ends--------------------
 
 env.config();
-const app=express();
+const app = express();
 
 //------------------middlewares ------------------------
 //public folder
 app.use(express.static('public'));
 
 //body parsing
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 //cookie extraction from req using a prebuilt module: cookie-parser
@@ -35,7 +35,7 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     cookie: {
-        maxAge: 1000*60*60*6, // 6 hours
+        maxAge: 1000 * 60 * 60 * 6, // 6 hours
     }
 }));
 
@@ -47,12 +47,12 @@ app.use(passport.session());
 app.use(jwtAuth);
 
 //others
-app.use(['/auth/login','/auth/register','/auth/google'],isAlreadyLoggedIn);
-app.use('/auth/register/completeProfile',isAuthorizedForCompleteProfile);
-app.use('/auth/register/verifyEmail',isAuthorizedForRegisterOTP);
+app.use(['/auth/login', '/auth/register', '/auth/google'], isAlreadyLoggedIn);
+app.use('/auth/register/completeProfile', isAuthorizedForCompleteProfile);
+app.use('/auth/register/verifyEmail', isAuthorizedForRegisterOTP);
 app.use('/auth/login/forgotPassword/otp', isAuthorizedForForgotOTP);
 app.use('/auth/login/forgotPassword/newPassword', isAuthorizedForForgotNewPassword);
-app.use('/user',isAuthenticated);
+app.use('/user', isAuthenticated);
 
 //----------------middleware ends----------------------
 

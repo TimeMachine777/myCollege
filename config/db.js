@@ -5,8 +5,8 @@ env.config();
 
 // console.log(process.env.DB_PORT);
 // console.log('hello');
-const {Pool} = pg;
-const pool=new Pool({
+const { Pool } = pg;
+const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
     database: process.env.DB_DATABASE,
@@ -16,13 +16,13 @@ const pool=new Pool({
 });
 
 function shutdown() {
-    pool.end(()=> {
+    pool.end(() => {
         console.log("Database connection pool is closed now.");
         process.exit(0);
     });
 }
 
-process.on('SIGINT',shutdown);
-process.on('SIGTERM',shutdown);
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
 
 export default pool;

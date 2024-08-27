@@ -1,7 +1,7 @@
 import express from "express";
-const router=express.Router();
+const router = express.Router();
 
-import {get_root, get_aboutUs} from "../controllers/rootController.js";
+import { get_root, get_aboutUs } from "../controllers/rootController.js";
 
 router.get('/', get_root);
 
