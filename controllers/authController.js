@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import env from "dotenv";
 
 import { logger } from "../utils/errorLogger.js";
-import { sendEmail } from "../utils/emailService.js";
+import { sendEmail } from "../utils/temp_emailService.js";
 import { generateJWTToken, generateOTP } from "../utils/misc.js";
 import { body, validationResult } from "express-validator";
 
