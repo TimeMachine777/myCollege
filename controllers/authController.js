@@ -26,7 +26,7 @@ export const verifyEmail = async (req, res, next) => {
     const newOTP = generateOTP();
 
     const emailStatus = await sendEmail({
-        from: '"myCollege Web App" <gaurangdev777@gmail.com>',
+        from: `"myCollege Web App" <${process.env.EMAIL_FROM}>`,
         to: req.session.userCredentials['username'],
         subject: 'OTP for user email verification by myCollege Web App',
         text: 'The OTP for the registration as well as email verification is: ' + newOTP,
@@ -70,7 +70,7 @@ export const forgotVerifyEmail = async (req, res, next) => {
     const newOTP = generateOTP();
 
     const emailStatus = await sendEmail({
-        from: '"myCollege Web App" <gaurangdev777@gmail.com>',
+        from: `"myCollege Web App" <${process.env.EMAIL_FROM}>`,
         to: req.session.forgotUserCredentials['username'],
         subject: 'OTP for user email verification by myCollege Web App',
         text: 'The OTP for forgot password email verification is: ' + newOTP,
@@ -497,7 +497,7 @@ export const getRegisterVerifyEmailResendOTP = async (req, res) => {
     const newOTP = generateOTP();
 
     const emailStatus = await sendEmail({
-        from: '"myCollege Web App" <gaurangdev777@gmail.com>',
+        from: `"myCollege Web App" <${process.env.EMAIL_FROM}>`,
         to: req.session.userCredentials['username'],
         subject: 'OTP for user email verification by myCollege Web App',
         text: 'The OTP for the registration as well as email verification is: ' + newOTP,
@@ -620,7 +620,7 @@ export const getLoginForgotPasswordOTPResendOTP = async (req, res) => {
     const newOTP = generateOTP();
 
     const emailStatus = await sendEmail({
-        from: '"myCollege Web App" <gaurangdev777@gmail.com>',
+        from: `"myCollege Web App" <${process.env.EMAIL_FROM}>`,
         to: req.session.forgotUserCredentials['username'],
         subject: 'OTP for user email verification by myCollege Web App',
         text: 'The OTP for forgot password email verification is: ' + newOTP,

@@ -23,7 +23,7 @@ const transporter = nodemailer.createTransport({
 });
 
 /* const info = await transporter.sendMail({
-    from: '"myCollege Web App" <gaurangdev777@gmail.com>', // sender address
+    from: `"myCollege Web App" <${process.env.EMAIL_FROM}>`, // sender address
     to: "abc@mail.com", // list of receivers
     subject: "OTP Testing myCollege ✔", // Subject line
     text: "The OTP is: 9875", // plain text body
