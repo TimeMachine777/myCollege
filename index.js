@@ -18,6 +18,11 @@ import './config/passport.js';
 env.config();
 const app = express();
 
+// proxy trust setting
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 2); //because 2 proxies are there- cloudflare & nginx
+}
+
 //------------------middlewares ------------------------
 //public folder
 app.use(express.static('public'));
@@ -65,7 +70,7 @@ app.use('/user', userRoutes);
 
 //use at the end so that if no route is activated, this is the default action!
 app.use((req, res, next) => {
-    res.status(404).send("Sorry can't find that!")
+    res.status(404).send("Sorry can't find that!");
 })
 
 app.listen(process.env.PORT, (err) => {

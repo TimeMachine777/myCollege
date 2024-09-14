@@ -23,9 +23,27 @@ export const validateCourseName =
 export const validateCID =
     body('cid')
         .trim()
-        .notEmpty().withMessage('Course ID value cannot be empty')
+        .notEmpty().withMessage('Course code value cannot be empty')
         .isLength({ max: 10 })
-        .matches(/^[a-zA-Z0-9_-]+$/).withMessage('Invalid course id format(only allowed char: a-z,A-Z,0-9,_,-)');
+        .matches(/^[a-zA-Z]+[a-zA-Z0-9_-]*$/).withMessage('Invalid course code format(only allowed char: a-z,A-Z,0-9,_,-)\nCourse code must begin with a letter.');
+
+export const checkCIDAlreadyExists =
+    body('cid')
+        .custom(async (value) => {
+            try {
+                const results = await pool.query('select * from academics where cid=$1', [value]);
+                if (results.rows.length > 0) {
+                    throw new Error('This course code already exists!');
+                }
+            }
+            catch (error) {
+                if (error.message.match(/exists!$/)) {
+                    throw error;
+                }
+                console.log(error);
+                throw new Error('Internal server error while fetching data from DB in CID validator.');
+            }
+        });
 
 export const validateProfessor =
     body('professor')
@@ -65,9 +83,9 @@ export const validateSem =
 export const validatePrevCID =
     body('prev_cid')
         .trim()
-        .notEmpty().withMessage('Course ID value cannot be empty')
+        .notEmpty().withMessage('Course code value cannot be empty')
         .isLength({ max: 10 })
-        .matches(/^[a-zA-Z0-9_-]+$/).withMessage('Invalid course id format(only allowed char: a-z,A-Z,0-9,_,-)');
+        .matches(/^[a-zA-Z]+[a-zA-Z0-9_-]*$/).withMessage('Invalid course code format(only allowed char: a-z,A-Z,0-9,_,-)\nCourse code must begin with a letter.');
 
 export const validateCourseDate =
     body('course_date')
@@ -227,7 +245,7 @@ export const validateEventCID =
         .optional({ values: 'falsy' })
         .trim()
         .isLength({ max: 10 })
-        .matches(/^[a-zA-Z0-9_-]+$/).withMessage('Invalid course id format(only allowed char: a-z,A-Z,0-9,_,-)');
+        .matches(/^[a-zA-Z]+[a-zA-Z0-9_-]*$/).withMessage('Invalid course code format(only allowed char: a-z,A-Z,0-9,_,-)\nCourse code must begin with a letter.');
 
 export const validateEID =
     body('eid')

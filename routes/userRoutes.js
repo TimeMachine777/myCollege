@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import { validateNewSem, validateCourseName, validateCID, validateProfessor, validateDept, validateCredits, validateSem, validatePrevCID, validateCourseDate, validateStatus, validatePrevStatus, validateAID, validateQuiz1, validateQuiz2, validateMidSem, validateEndSem, validateInternal, validateEventName, validateEventType, validateDescription, validateIssueDate, validateDeadline, validateCompletionDate, validateEventCID, validateEID, validateCurrPassword, validateChangeNewPassword, validateChangeRepeatNewPassword } from "../validators/userValidator.js";
+import { validateNewSem, validateCourseName, validateCID, checkCIDAlreadyExists, validateProfessor, validateDept, validateCredits, validateSem, validatePrevCID, validateCourseDate, validateStatus, validatePrevStatus, validateAID, validateQuiz1, validateQuiz2, validateMidSem, validateEndSem, validateInternal, validateEventName, validateEventType, validateDescription, validateIssueDate, validateDeadline, validateCompletionDate, validateEventCID, validateEID, validateCurrPassword, validateChangeNewPassword, validateChangeRepeatNewPassword } from "../validators/userValidator.js";
 import { validateName, validateRollNo, validateCollegeName, validateCurrSem } from "../validators/authValidator.js";
 import { get_dashboard, post_updateSessionSem, get_courses, post_courses, put_courses, delete_courses, get_attendance, post_attendance, post_attendanceAdd, put_attendance, delete_attendance, get_marks, put_marks, get_events, post_eventsGetCID, post_events, post_eventsGetEvent, put_events, delete_events, get_profile, post_changePassword, post_changeUserDetails } from "../controllers/userController.js";
 
@@ -11,7 +11,7 @@ router.post('/updateSessionSem', [validateNewSem], post_updateSessionSem);
 
 router.get('/courses', get_courses);
 
-router.post('/courses', [validateCourseName, validateCID, validateProfessor, validateDept, validateCredits, validateSem], post_courses)
+router.post('/courses', [validateCourseName, validateCID, checkCIDAlreadyExists, validateProfessor, validateDept, validateCredits, validateSem], post_courses)
 
 router.put('/courses', [validateCourseName, validateCID, validateProfessor, validateDept, validateCredits, validateSem, validatePrevCID], put_courses);
 
