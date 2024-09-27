@@ -2,8 +2,8 @@ import pool from "../config/db.js";
 import { body } from 'express-validator';
 
 // setting max input date time
-const now = new Date();
-const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+const now = () => new Date();
+const endOfDay = () => new Date(now().getFullYear(), now().getMonth(), now().getDate(), 23, 59, 59);
 
 export const validateNewSem =
     body('newSem')
@@ -94,8 +94,8 @@ export const validateCourseDate =
         .isISO8601().withMessage('Invalid date format, must be ISO 8601 format').bail()
         .custom(value => {
             const inputDate = new Date(value);
-            if (inputDate > endOfDay) {
-                throw new Error(`Date must be on or before ${endOfDay.toLocaleString()}`);
+            if (inputDate > endOfDay()) {
+                throw new Error(`Date must be on or before ${endOfDay().toLocaleString()}`);
             }
             return true;
         });
